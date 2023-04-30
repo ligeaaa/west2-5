@@ -1,0 +1,7 @@
+com\west2_5\common\PageRequest.class
+com\west2_5\model\entity\Menu.class
+com\west2_5\model\request\merchandise\SelectMerchandiseRequest.class
+com\west2_5\model\entity\MerchandiseTag.class
+com\west2_5\model\entity\Merchandise.class
+com\west2_5\model\entity\User.class
+com\west2_5\common\ErrorCode.class
