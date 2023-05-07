@@ -23,10 +23,9 @@ public class Favorites  {
     @TableId
     private Long id;
 
-    
     private Long userId;
     
-    private Long taskId;
+    private Long merchandiseId;
     
     private String alias;
     

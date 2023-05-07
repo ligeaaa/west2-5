@@ -39,6 +39,8 @@ public class MerchandiseController{
     @Autowired
     private MerchandiseService merchandiseService;
 
+    // region 增删改查
+
     //增
     @ApiOperation("增")
     @PostMapping("/add")
@@ -122,7 +124,7 @@ public class MerchandiseController{
         //简介
         String briefintroduction = selectMerchandiseRequest.getBriefintroduction();
 
-        Long pageNum = selectMerchandiseRequest.getCurrent();
+        Long current = selectMerchandiseRequest.getCurrent();
         Long pageSize = selectMerchandiseRequest.getPageSize();
         QueryPageParam queryPageParam = new QueryPageParam();
 
@@ -148,13 +150,10 @@ public class MerchandiseController{
             lambdaQueryWrapper.like(Merchandise::getBriefintroduction, briefintroduction);
         }
 
-        if (pageNum != null) {
-            // queryPageParam.setPageNum(pageNum);
-        }
+        queryPageParam.setPageNum(current);
 
-        if (pageSize != null) {
-            // queryPageParam.setPageSize(pageSize);
-        }
+        queryPageParam.setPageSize(pageSize);
+
         Page<Merchandise> page = new Page();
         page.setCurrent(queryPageParam.getPageNum());
         page.setSize(queryPageParam.getPageSize());
@@ -163,5 +162,9 @@ public class MerchandiseController{
 
         return ResultUtils.success(result.getRecords());
     }
+
+    //endregion
+
+
 }
 
