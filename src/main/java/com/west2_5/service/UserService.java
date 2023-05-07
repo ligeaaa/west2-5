@@ -2,6 +2,7 @@ package com.west2_5.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.west2_5.model.entity.User;
+import com.west2_5.model.request.user.UserRegisterRequest;
 
 
 /**
@@ -12,4 +13,7 @@ import com.west2_5.model.entity.User;
  */
 public interface UserService extends IService<User> {
 
+    Long userRegister(UserRegisterRequest userRegisterRequest);
+
+    Boolean verifyPhone(String phone, String code, String key);
 }

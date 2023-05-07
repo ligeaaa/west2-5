@@ -1,5 +1,6 @@
 package com.west2_5.model.entity;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 import java.io.Serializable;
@@ -31,9 +32,9 @@ public class Favorites  {
     
     private String groupName;
     
-    private Date createTime;
+    private LocalDateTime createTime;
     
-    private Date updateTime;
+    private LocalDateTime updateTime;
 
 
 

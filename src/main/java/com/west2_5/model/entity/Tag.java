@@ -1,5 +1,6 @@
 package com.west2_5.model.entity;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 import java.io.Serializable;
@@ -28,11 +29,11 @@ public class Tag  {
     
     private Long createBy;
     
-    private Date createTime;
+    private LocalDateTime createTime;
     
     private Long updateBy;
     
-    private Date updateTime;
+    private LocalDateTime updateTime;
     //状态（1代表已删除，2表示未审核，3表示审核通过）
     private Integer statu;
     //备注

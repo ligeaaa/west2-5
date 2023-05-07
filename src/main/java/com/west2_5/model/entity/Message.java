@@ -1,5 +1,6 @@
 package com.west2_5.model.entity;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 import java.io.Serializable;
@@ -32,9 +33,9 @@ public class Message  {
     //接收者id，0为系统
     private Long receuveuserid;
     
-    private Date createTime;
+    private LocalDateTime createTime;
     
-    private Date updateTime;
+    private LocalDateTime updateTime;
     //0表示未读，1表示已读，2表示未审核
     private String statu;
 

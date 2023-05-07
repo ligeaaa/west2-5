@@ -1,5 +1,6 @@
 package com.west2_5.model.entity;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 import java.io.Serializable;
@@ -44,11 +45,11 @@ public class User  {
     //创建人的用户id
     private Long createBy;
     //创建时间
-    private Date createTime;
+    private LocalDateTime createTime;
     //更新人
     private Long updateBy;
     //更新时间
-    private Date updateTime;
+    private LocalDateTime updateTime;
 
 
 
