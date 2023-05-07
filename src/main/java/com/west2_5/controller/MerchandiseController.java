@@ -108,11 +108,12 @@ public class MerchandiseController{
     @ApiOperation("查询")
     @PostMapping("/select")
     public BaseResponse<List<Merchandise>> selectMerchandiseId(@RequestBody SelectMerchandiseRequest selectMerchandiseRequest, HttpServletRequest request) {
-        //判断是否为空
+        //判断selectMerchandiseRequest是否为空
         if (selectMerchandiseRequest == null) {
             return ResultUtils.error(NULL_ERROR);
         }
 
+        //把selectMerchandiseRequest中的各个数据取出
         //发布者id
         Long userid = selectMerchandiseRequest.getUserid();
         //商品名称
@@ -130,6 +131,7 @@ public class MerchandiseController{
 
         LambdaQueryWrapper<Merchandise> lambdaQueryWrapper = new LambdaQueryWrapper();
 
+        //若属性不为空=要查询该属性
         if (userid != null) {
             lambdaQueryWrapper.like(Merchandise::getUserid, userid);
         }
@@ -149,6 +151,8 @@ public class MerchandiseController{
         if (briefintroduction != null) {
             lambdaQueryWrapper.like(Merchandise::getBriefintroduction, briefintroduction);
         }
+
+        //current默认为20，pageSize默认为1
 
         queryPageParam.setPageNum(current);
 
