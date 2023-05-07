@@ -107,7 +107,7 @@ public class MerchandiseController{
     //查(根据advice,contactDetails,feedbackUserId)
     @ApiOperation("查询")
     @PostMapping("/select")
-    public BaseResponse<List<Merchandise>> selectMerchandiseId(@RequestBody SelectMerchandiseRequest selectMerchandiseRequest, HttpServletRequest request) {
+    public BaseResponse<List<Merchandise>> selectMerchandise(@RequestBody SelectMerchandiseRequest selectMerchandiseRequest, HttpServletRequest request) {
         //判断selectMerchandiseRequest是否为空
         if (selectMerchandiseRequest == null) {
             return ResultUtils.error(NULL_ERROR);
