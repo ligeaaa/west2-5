@@ -10,6 +10,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.west2_5.exception.BusinessException;
 import com.west2_5.model.entity.User;
 import com.west2_5.mapper.UserMapper;
+import com.west2_5.model.request.user.PasswordLoginRequest;
 import com.west2_5.model.request.user.UserRegisterRequest;
 import com.west2_5.service.UserService;
 import org.bouncycastle.jcajce.provider.asymmetric.RSA;
@@ -40,8 +41,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Resource
     private UserMapper userMapper;
 
-    @Resource
-    private RSA rsa;
+//    @Resource
+//    private RSA rsa;
 
     @Resource
     private Snowflake snowflake;
@@ -64,6 +65,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
+    public User loginByPassword(PasswordLoginRequest loginRequest) {
+        return null;
+    }
+
+    @Override
     public Long userRegister(UserRegisterRequest userRegisterRequest) {
         String password = userRegisterRequest.getPassword();
         String phone = userRegisterRequest.getPhone();
@@ -77,9 +83,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
 
         // 验证 手机号和验证码是否匹配
-        if (!verifyPhone(phone, code, REGISTER_CODE_KEY)) {
-            throw new BusinessException(PARAMS_ERROR, "验证码错误");
-        }
+//        if (!verifyPhone(phone, code, REGISTER_CODE_KEY)) {
+//            throw new BusinessException(PARAMS_ERROR, "验证码错误");
+//        }
 
 
         // 手机号不能重复

@@ -1,7 +1,10 @@
 package com.west2_5.controller;
 
+
 import com.west2_5.common.BaseResponse;
 import com.west2_5.common.ResultUtils;
+import com.west2_5.model.entity.User;
+import com.west2_5.model.request.user.PasswordLoginRequest;
 import com.west2_5.model.request.user.UserRegisterRequest;
 import com.west2_5.service.UserService;
 import org.bouncycastle.jcajce.provider.asymmetric.RSA;
@@ -23,8 +26,8 @@ public class UserController{
     @Resource
     private UserService userService;
 
-    @Resource
-    private RSA rsa;
+//    @Resource
+//    private RSA rsa;
 
 
     /**
@@ -38,25 +41,33 @@ public class UserController{
     //    }
 
 
-
-
     //region 增删改查
 
-    /**
-     * 用户注册
-     *
-     * @param userRegisterRequest userRegisterRequest
-     * @return userid
-     */
-    @PostMapping("/register")
-    public BaseResponse<String> userRegister(@RequestBody @Valid UserRegisterRequest userRegisterRequest) {
-
-        long result = userService.userRegister(userRegisterRequest);
-        StpUtil.login(result);
-
-        return ResultUtils.success(StpUtil.getTokenValue());
-    }
-
+//    /**
+//     * 用户注册
+//     *
+//     * @param userRegisterRequest userRegisterRequest
+//     * @return userid
+//     */
+//    @PostMapping("/register")
+//    public BaseResponse<Long> userRegister(@RequestBody @Valid UserRegisterRequest userRegisterRequest) {
+//
+//        long result = userService.userRegister(userRegisterRequest);
+//        return ResultUtils.success(result);
+//    }
+//
+//    /**
+//     * 通过手机号和密码登录
+//     *
+//     * @param loginRequest 用户密码登录结构体
+//     * @return authentication
+//     */
+//    @PostMapping("/login/by/password")
+//    public BaseResponse<User> loginByPassword(@RequestBody @Valid PasswordLoginRequest loginRequest) {
+//        User user = userService.loginByPassword(loginRequest);
+//
+//        return ResultUtils.success(user);
+//    }
 
     //endregion
 

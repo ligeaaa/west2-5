@@ -8,6 +8,7 @@ public class West25Application {
 
     public static void main(String[] args) {
         SpringApplication.run(West25Application.class, args);
+
     }
 
 }

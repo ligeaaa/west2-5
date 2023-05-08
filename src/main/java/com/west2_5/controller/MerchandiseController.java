@@ -41,7 +41,9 @@ public class MerchandiseController{
 
     // region 增删改查
 
-    //增
+    /**
+     * 增
+     */
     @ApiOperation("增")
     @PostMapping("/add")
     public BaseResponse<ErrorCode> addMerchandise(@RequestBody AddMerchandiseRequest addMerchandiseRequest) {
@@ -69,7 +71,9 @@ public class MerchandiseController{
         return result;
     }
 
-    //删
+    /**
+     * 删
+     */
     @ApiOperation("删")
     @PostMapping("/delete")
     public BaseResponse<Boolean> deleteMerchandiseById(Long id) {
@@ -79,7 +83,9 @@ public class MerchandiseController{
         return ResultUtils.success(merchandiseService.removeById(id));
     }
 
-    //改
+    /**
+     * 改
+     */
     @ApiOperation("更新")
     @PostMapping("/update")
     public BaseResponse updateMerchandiseById(@RequestBody UpdateMerchandiseById updateMerchandiseById, HttpServletRequest request) {
@@ -104,7 +110,9 @@ public class MerchandiseController{
         return merchandiseService.updateMerchandiseById(id, title, tag, externaldisplaypicture, displaypictures, price, briefintroduction);
     }
 
-    //查(根据advice,contactDetails,feedbackUserId)
+    /**
+     * 查
+     */
     @ApiOperation("查询")
     @PostMapping("/select")
     public BaseResponse<List<Merchandise>> selectMerchandise(@RequestBody SelectMerchandiseRequest selectMerchandiseRequest, HttpServletRequest request) {
