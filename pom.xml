@@ -16,7 +16,6 @@
     <description>west2_5</description>
     <properties>
         <java.version>1.8</java.version>
-        <satoken.version>1.34.0</satoken.version>
     </properties>
     <dependencies>
         <dependency>

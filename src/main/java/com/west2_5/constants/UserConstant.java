@@ -1,5 +1,7 @@
 package com.west2_5.constants;
 
+import io.swagger.models.auth.In;
+
 /**
  * 用户常量
  *
@@ -7,24 +9,51 @@ package com.west2_5.constants;
  */
 public interface UserConstant {
 
-    /**
-     * 用户登录态键
-     */
-    String USER_LOGIN_STATE = "userLoginState";
 
     //  ------- 权限 --------
 
     /**
-     * 默认权限
+     * 普通用户权限
      */
-    /**
-     * 默认权限
-     */
-    String DEFAULT_ROLE = "user";
+    String NORMAL_ROLE = "0";
 
     /**
      * 管理员权限
      */
-    String ADMIN_ROLE = "admin";
+    String ADMIN_ROLE = "1";
+
+    /**
+     * 超级管理员权限
+     */
+    String SUPER_ADMIN_ROLE = "2";
+
+    //  ------- 性别 --------
+
+    /**
+     * 男
+     */
+    String MALE = "0";
+
+    /**
+     * 女
+     */
+    String FEMALE = "1";
+
+    /**
+     * 未知
+     */
+    String UNKNOWN_GENDER = "2";
+
+    //  ------- 状态 --------
+    /**
+     * 正常
+     */
+    String NORMAL_WORKING = "0";
+
+    /**
+     * 停用
+     */
+    String STOP_WORKING = "1";
+
 
 }

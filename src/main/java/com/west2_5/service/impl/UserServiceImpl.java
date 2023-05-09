@@ -1,30 +1,21 @@
 package com.west2_5.service.impl;
 
-import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.lang.Snowflake;
-import cn.hutool.core.util.RandomUtil;
-import cn.hutool.core.util.StrUtil;
-import cn.hutool.crypto.SmUtil;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.west2_5.exception.BusinessException;
+import com.west2_5.common.BaseResponse;
+import com.west2_5.common.ResultUtils;
+import com.west2_5.model.entity.User;
 import com.west2_5.model.entity.User;
 import com.west2_5.mapper.UserMapper;
-import com.west2_5.model.request.user.PasswordLoginRequest;
-import com.west2_5.model.request.user.UserRegisterRequest;
 import com.west2_5.service.UserService;
-import org.bouncycastle.jcajce.provider.asymmetric.RSA;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
 
-import static com.west2_5.common.ErrorCode.OPERATION_ERROR;
-import static com.west2_5.common.ErrorCode.PARAMS_ERROR;
-import static com.west2_5.constants.RedisConstants.REGISTER_CODE_KEY;
-import static com.west2_5.constants.RoleConstants.DEFAULT_NICK_NAME_PREFIX;
-import static com.west2_5.constants.RoleConstants.ROLE_USER;
+import static com.west2_5.common.ErrorCode.*;
+import static com.west2_5.constants.UserConstant.*;
+
 
 /**
  * 用户表(User)表服务实现类
@@ -36,86 +27,105 @@ import static com.west2_5.constants.RoleConstants.ROLE_USER;
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
 
     @Resource
-    private StringRedisTemplate stringRedisTemplate;
-
-    @Resource
-    private UserMapper userMapper;
-
-//    @Resource
-//    private RSA rsa;
-
-    @Resource
-    private Snowflake snowflake;
-
-
-    /**
-     * 实现验证 验证码和手机号是否匹配
-     *
-     * @param phone phone
-     * @param code  验证码
-     * @param key   redis存储对应验证码的前缀
-     * @return 是否匹配
-     */
-    @Override
-    public Boolean verifyPhone(String phone, String code, String key) {
-
-        String cacheCode = stringRedisTemplate.opsForValue().get(key + phone);
-
-        return StrUtil.equals(code, cacheCode);
-    }
+    UserMapper userMapper;
 
     @Override
-    public User loginByPassword(PasswordLoginRequest loginRequest) {
-        return null;
-    }
-
-    @Override
-    public Long userRegister(UserRegisterRequest userRegisterRequest) {
-        String password = userRegisterRequest.getPassword();
-        String phone = userRegisterRequest.getPhone();
-        String code = userRegisterRequest.getVerifyCode();
-
-//        try {
-//            password = rsa.decryptStr(password, KeyType.PrivateKey);
-//        } catch (Exception e) {
-//            throw new BusinessException(PARAMS_ERROR, "密码未加密");
-//        }
-
-
-        // 验证 手机号和验证码是否匹配
-//        if (!verifyPhone(phone, code, REGISTER_CODE_KEY)) {
-//            throw new BusinessException(PARAMS_ERROR, "验证码错误");
-//        }
-
-
-        // 手机号不能重复
-        User one = userMapper.selectOne(new QueryWrapper<User>().eq("phone", phone));
-
-        if (BeanUtil.isNotEmpty(one)) {
-            throw new BusinessException(OPERATION_ERROR, "该手机号已经注册");
+    public BaseResponse addUser(String userName, String nickName, String password, String email, String phonenumber, String sex, String avatar) {
+        if (userName == null || password == null){
+            return ResultUtils.error(PARAMS_ERROR);
         }
-
-        // 生成用户id
-        Long id = snowflake.nextId();
-
-        // 加密
-        String newPassword = SmUtil.sm3(id + password);
-
-        // 插入数据
+        //实现add功能
         User user = new User();
-        user.setId(id);
-        user.setPhonenumber(phone);
-        user.setPassword(newPassword);
-        user.setRole(ROLE_USER);
-        user.setCreateTime(LocalDateTime.now());
-        user.setNickName(DEFAULT_NICK_NAME_PREFIX + RandomUtil.randomString(10));
 
-        boolean b = save(user);
-        if (!b) {
-            throw new BusinessException(OPERATION_ERROR, "注册失败");
+        //TODO 判断userid是否存在
+
+        LocalDateTime localDateTime = LocalDateTime.now();
+        user.setUserName(userName);
+        user.setPassword(password);
+        user.setStatus(NORMAL_WORKING);
+        user.setRole(NORMAL_ROLE);
+        user.setCreateTime(localDateTime);
+        user.setUpdateTime(localDateTime);
+
+        //region 各属性null的判断以及对应的处理
+        if (nickName == null){
+            user.setNickName(userName);
+        }else{
+            user.setNickName(nickName);
         }
 
-        return id;
+        if (email == null){
+            user.setEmail("null");
+        }else{
+            user.setEmail(email);
+        }
+
+        if (phonenumber == null){
+            user.setPhonenumber("null");
+        }else{
+            user.setPhonenumber(phonenumber);
+        }
+
+        if (sex == null){
+            user.setSex(UNKNOWN_GENDER);
+        }else{
+            user.setSex(sex);
+        }
+
+        if (avatar == null){
+            user.setAvatar("默认路径");
+        }else{
+            user.setAvatar(avatar);
+        }
+        //endregion
+
+        boolean saveResult = this.save(user);
+        if (saveResult){
+            return ResultUtils.success(SUCCESS);
+        }else{
+            return ResultUtils.error(SYSTEM_ERROR);
+        }
+    }
+
+    @Override
+    public BaseResponse updateUserById(Long id, String userName, String nickName, String password, String status, String email, String phonenumber, String sex, String avatar) {
+        //判断为空,判断id是否合法,判断id是否存在
+        if (id == null || id <= 0 || this.getById(id) == null){
+            return ResultUtils.error(PARAMS_ERROR);
+        }
+
+        UpdateWrapper<User> updateWrapper = new UpdateWrapper<>();
+        if (id != null){
+            updateWrapper.lambda().set(User::getId,id);
+        }
+        if (userName != null){
+            updateWrapper.lambda().set(User::getUserName,userName);
+        }
+        if (nickName != null){
+            updateWrapper.lambda().set(User::getNickName,nickName);
+        }
+        if (password != null){
+            updateWrapper.lambda().set(User::getPassword,password);
+        }
+        if (status != null){
+            updateWrapper.lambda().set(User::getStatus,status);
+        }
+        if (email != null){
+            updateWrapper.lambda().set(User::getEmail,email);
+        }
+        if (phonenumber != null){
+            updateWrapper.lambda().set(User::getPhonenumber,phonenumber);
+        }
+        if (sex != null){
+            updateWrapper.lambda().set(User::getSex,sex);
+        }
+        if (avatar != null){
+            updateWrapper.lambda().set(User::getAvatar,avatar);
+        }
+
+        updateWrapper.lambda().eq(User::getId,id);//判断依据
+        userMapper.update(null,updateWrapper);
+        return ResultUtils.success(SUCCESS);
     }
 }
 
