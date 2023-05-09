@@ -3,15 +3,24 @@ package com.west2_5.service.impl;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.west2_5.common.BaseResponse;
+import com.west2_5.common.ErrorCode;
 import com.west2_5.common.ResultUtils;
-import com.west2_5.model.entity.User;
+import com.west2_5.controller.UserController;
+import com.west2_5.exception.BusinessException;
 import com.west2_5.model.entity.User;
 import com.west2_5.mapper.UserMapper;
 import com.west2_5.service.UserService;
+import com.west2_5.utils.SendSmsUtil;
+import org.apache.shiro.crypto.SecureRandomNumberGenerator;
+import org.apache.shiro.crypto.hash.SimpleHash;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
+import java.util.concurrent.TimeUnit;
 
 import static com.west2_5.common.ErrorCode.*;
 import static com.west2_5.constants.UserConstant.*;
@@ -26,8 +35,13 @@ import static com.west2_5.constants.UserConstant.*;
 @Service("userService")
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
 
+    private Logger logger = LoggerFactory.getLogger(UserController.class);
+
     @Resource
     UserMapper userMapper;
+
+    @Resource
+    RedisTemplate<String, String> redisTemplate;
 
     @Override
     public BaseResponse addUser(String userName, String nickName, String password, String email, String phonenumber, String sex, String avatar) {
@@ -127,5 +141,68 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         userMapper.update(null,updateWrapper);
         return ResultUtils.success(SUCCESS);
     }
+
+    //region整合
+
+
+    public void sendCode(String phone) {
+
+        // 判断手机号是否已被注册
+        if (userMapper.findUserByPhone(phone) != null) {
+            throw new BusinessException(ErrorCode.PHONE_HAS_EXITED);
+        }
+
+        // 生成5位随机数字验证码
+        String code = String.valueOf((int) ((Math.random() * 9 + 1) * 10000));
+
+        // 将验证码存入 Redis（有效期5分钟）
+        redisTemplate.opsForValue().set(phone, code, 5, TimeUnit.MINUTES);
+
+        // 调用短信发送接口发送验证码
+        SendSmsUtil.sendCode(phone,code);
+    }
+
+
+    public void signIn(String phone, String password, String code) {
+        String redisCode = redisTemplate.opsForValue().get(phone);
+        if (redisCode == null) {
+            throw new BusinessException(ErrorCode.VERIFY_CODE_EXPIRED);
+        }
+        if (!redisCode.equals(code)) {
+            throw new BusinessException(ErrorCode.VERIFY_CODE_MISMATCH);
+        }
+
+
+        User user = new User();
+
+        // salt 加密
+        String salt = new SecureRandomNumberGenerator().nextBytes().toString(); // toHex()的话 Realm也要改动
+        SimpleHash simpleHash = new SimpleHash("md5", password, salt,2);
+        String encryptedPwd = simpleHash.toString();
+
+        //logger.info("原始密码"+password);
+        //logger.info("加密密码"+encryptedPwd);
+
+        user.setPhonenumber(phone);
+        user.setUserName(phone); // 默认初始用户名和手机号相同
+        user.setPassword(encryptedPwd);
+        user.setUserSalt(salt);
+        userMapper.register(user);
+
+        // Todo: 解密匹配写在 UserRealm
+    }
+
+    public User findUserByPhone(String phone) {
+        User user = userMapper.findUserByPhone(phone);
+        if(user == null){
+            throw new BusinessException(ErrorCode.USER_UNKNOWN);
+        }
+        return user;
+    }
+
+
+    //endregion
+
+
 }
 

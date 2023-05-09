@@ -1,6 +1,7 @@
 package com.west2_5.controller;
 
 
+import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -8,27 +9,31 @@ import com.west2_5.common.BaseResponse;
 import com.west2_5.common.ErrorCode;
 import com.west2_5.common.ResultUtils;
 import com.west2_5.constants.QueryPageParam;
-import com.west2_5.model.entity.Merchandise;
+import com.west2_5.exception.BusinessException;
 import com.west2_5.model.entity.User;
 
-import com.west2_5.model.request.merchandise.AddMerchandiseRequest;
-import com.west2_5.model.request.merchandise.SelectMerchandiseRequest;
-import com.west2_5.model.request.merchandise.UpdateMerchandiseById;
 import com.west2_5.model.request.user.AddUserRequest;
 import com.west2_5.model.request.user.SelectUserRequest;
 import com.west2_5.model.request.user.UpdateUserById;
 import com.west2_5.service.UserService;
 import io.swagger.annotations.ApiOperation;
-import org.bouncycastle.jcajce.provider.asymmetric.RSA;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authc.AuthenticationException;
+import org.apache.shiro.authc.IncorrectCredentialsException;
+import org.apache.shiro.authc.UsernamePasswordToken;
+import org.apache.shiro.subject.Subject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
+import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import static com.west2_5.common.ErrorCode.NULL_ERROR;
-import static com.west2_5.common.ErrorCode.PARAMS_ERROR;
+import static com.west2_5.common.ErrorCode.*;
 
 
 /**
@@ -43,8 +48,8 @@ public class UserController{
     @Resource
     private UserService userService;
 
-//    @Resource
-//    private RSA rsa;
+    @Autowired
+    private RedisTemplate<String, Object> redisTemplate;
 
 
     //region 增删改查
@@ -202,7 +207,78 @@ public class UserController{
 
     //endregion
 
+    //region 整合内容
 
+    //发送短信
+    @GetMapping("/sms")
+    public BaseResponse<ErrorCode> sendCode(@RequestParam String phonenumber) {
+        userService.sendCode(phonenumber);
+        return ResultUtils.success(SUCCESS);
+    }
+
+    //检验验证码 + 注册
+    @PostMapping("/signin")
+    public BaseResponse<ErrorCode> validRegister(@RequestBody Map<String, Object> requestMap) {
+        Map<String, Object> map = new HashMap<>();
+        String phonenumber = requestMap.get("phone").toString();
+        String code = requestMap.get("code").toString();
+        String password = requestMap.get("password").toString();
+        userService.signIn(phonenumber, password, code);
+        return ResultUtils.success(SUCCESS);
+    }
+
+    @PostMapping("/login")
+    public BaseResponse<Serializable> login(@RequestBody User user) {
+
+        String Phonenumber = user.getPhonenumber();
+        String password = user.getPassword();
+
+        UsernamePasswordToken token = new UsernamePasswordToken(Phonenumber, password); //用于原本和UserRealm生成的token对比
+
+        Subject subject = SecurityUtils.getSubject();
+        // 用户认证
+        try {
+            subject.login(token);
+        } catch (AuthenticationException e) {
+            if (e instanceof IncorrectCredentialsException) {
+                throw new BusinessException(ErrorCode.INCORRECT_PWD);
+            }
+        }
+
+        // 认证成功
+        Serializable tokenId = subject.getSession().getId();
+        return ResultUtils.success(tokenId);
+    }
+
+
+    @PostMapping("/logout")
+    public void logout() {
+        Subject subject = SecurityUtils.getSubject();
+        if (subject.isAuthenticated()) {
+            subject.logout();
+        }
+    }
+
+    // 获取用户基本信息
+    @GetMapping("/info")
+    public BaseResponse<JSONObject> getBasicInfo() {
+        User user = (User) SecurityUtils.getSubject().getPrincipal(); // 获取当前登录用户（不用重新调数据库）
+        String phonenumber = user.getPhonenumber();
+        String name = user.getUserName();
+        String avatar = user.getAvatar();
+
+        JSONObject userInfo = new JSONObject();
+        userInfo.put("phone", phonenumber);
+        userInfo.put("name", name);
+        userInfo.put("avatar", avatar);
+
+        return ResultUtils.success(userInfo);
+    }
+
+
+
+
+    //endregion
 
 
 

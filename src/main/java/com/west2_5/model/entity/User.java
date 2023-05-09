@@ -50,7 +50,8 @@ public class User  {
     private Long updateBy;
     //更新时间
     private LocalDateTime updateTime;
-
+    //加密用盐值
+    private String userSalt;
 
 
 }

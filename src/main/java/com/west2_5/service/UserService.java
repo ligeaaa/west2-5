@@ -18,4 +18,12 @@ public interface UserService extends IService<User> {
     BaseResponse addUser(String userName, String nickName, String password, String email, String phonenumber, String sex, String avatar);
 
     BaseResponse updateUserById(Long id, String userName, String nickName, String password, String status, String email, String phonenumber, String sex, String avatar);
+
+    void sendCode(String phone);
+
+    void signIn(String phone, String password, String code);
+
+    User findUserByPhone(String phone);
+
+
 }
