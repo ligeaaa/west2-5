@@ -8,5 +8,12 @@
       <jdbc-url>jdbc:mysql://localhost:3306/west2</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
+    <data-source source="LOCAL" name="xssc@8.130.97.88" uuid="9d3991ad-c1c1-446b-9792-957e355ffc8a">
+      <driver-ref>mysql.8</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>com.mysql.cj.jdbc.Driver</jdbc-driver>
+      <jdbc-url>jdbc:mysql://8.130.97.88:3306/xssc</jdbc-url>
+      <working-dir>$ProjectFileDir$</working-dir>
+    </data-source>
   </component>
 </project>
