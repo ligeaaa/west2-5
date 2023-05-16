@@ -30,7 +30,6 @@ public class UserRealm extends AuthorizingRealm{
         String salt = user.getUserSalt();
 
         return new SimpleAuthenticationInfo(user, dbPwd, ByteSource.Util.bytes(salt),"" );
-
     }
 
     // 认证成功即可授权

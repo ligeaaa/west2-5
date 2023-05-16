@@ -15,14 +15,12 @@ import com.west2_5.model.entity.User;
  */
 public interface UserService extends IService<User> {
 
-
-    BaseResponse addUser(String userName, String nickName, String password, String email, String phonenumber, String sex, String avatar);
-
-    BaseResponse updateUserById(Long id, String userName, String nickName, String password, String status, String email, String phonenumber, String sex, String avatar);
-
     void sendCode(String phone);
 
     User findUserByPhone(String phone);
 
     BaseResponse<ErrorCode> signIn(String phone,String password,String code);
+
+    BaseResponse updateUserById(Long id, String userName, String nickName, String password, String status, String email, String phonenumber, String sex, String avatar);
+
 }

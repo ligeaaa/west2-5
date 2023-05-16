@@ -20,6 +20,7 @@ import io.swagger.annotations.ApiOperation;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.IncorrectCredentialsException;
+import org.apache.shiro.authc.UnknownAccountException;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.subject.Subject;
 import org.slf4j.Logger;
@@ -46,7 +47,7 @@ import static com.west2_5.common.ErrorCode.*;
  */
 @RestController
 @RequestMapping("user")
-public class UserController{
+public class UserController {
     private Logger logger = LoggerFactory.getLogger(UserController.class);
 
     @Resource
@@ -55,33 +56,90 @@ public class UserController{
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
 
-    //region 增删改查
-    @ApiOperation("增")
-    @PostMapping("/add")
-    public BaseResponse<ErrorCode> addUser(@RequestBody AddUserRequest addUserRequest) {
+
+    //region 整合内容
+
+    //发送短信
+    @GetMapping("/sms")
+    public BaseResponse<ErrorCode> sendCode(@RequestParam String phonenumber) {
+        userService.sendCode(phonenumber);
+        return ResultUtils.success(SUCCESS);
+    }
+
+    //检验验证码 + 注册
+    @PostMapping("/signin")
+    public BaseResponse<ErrorCode> validRegister(@RequestBody AddUserRequest addUserRequest) {
         if (addUserRequest == null) {
             return ResultUtils.error(NULL_ERROR);
         }
 
-        //用户名
-        String userName = addUserRequest.getUserName();
-        //昵称
-        String nickName = addUserRequest.getNickName();
-        //密码
-        String password = addUserRequest.getPassword();
-        //邮箱
-        String email = addUserRequest.getEmail();
         //手机号
         String phone = addUserRequest.getPhone();
-        //用户性别（0男，1女，2未知）
-        String sex = addUserRequest.getSex();
-        //头像
-        String avatar = addUserRequest.getAvatar();
 
-        BaseResponse result = userService.addUser(userName, nickName, password, email, phone, sex, avatar);
+        //密码
+        String password = addUserRequest.getPassword();
 
-        return result;
+        //验证码
+        String code = addUserRequest.getCode();
+
+        userService.signIn(phone, password, code);
+        return ResultUtils.success(SUCCESS);
     }
+
+    @PostMapping("/login")
+    public BaseResponse<Serializable> login(@RequestBody User user) {
+
+        String Phonenumber = user.getPhonenumber();
+        String password = user.getPassword();
+
+        UsernamePasswordToken token = new UsernamePasswordToken(Phonenumber, password); //用于和原本UserRealm生成的token对比
+
+        Subject subject = SecurityUtils.getSubject();
+        Serializable tokenId = null;
+        // 用户认证
+        try {
+            subject.login(token);
+            // 认证成功
+            tokenId = subject.getSession().getId();
+            return ResultUtils.success(tokenId);
+        } catch (AuthenticationException e) {
+            if (e instanceof IncorrectCredentialsException) {
+               return ResultUtils.error(INCORRECT_PWD);
+            }
+        }
+        return ResultUtils.error(USER_UNKNOWN);
+    }
+
+
+    @PostMapping("/logout")
+    public void logout() {
+        Subject subject = SecurityUtils.getSubject();
+        if (subject.isAuthenticated()) {
+            subject.logout();
+        }
+    }
+
+    // 获取用户基本信息
+    @GetMapping("/info")
+    public BaseResponse<JSONObject> getBasicInfo() {
+        User user = (User) SecurityUtils.getSubject().getPrincipal(); // 获取当前登录用户（不用重新调数据库）
+        String phonenumber = user.getPhonenumber();
+        String name = user.getUserName();
+        String avatar = user.getAvatar();
+
+        JSONObject userInfo = new JSONObject();
+        userInfo.put("phone", phonenumber);
+        userInfo.put("name", name);
+        userInfo.put("avatar", avatar);
+
+        return ResultUtils.success(userInfo);
+    }
+
+
+    //endregion
+
+
+    //region 删改查
 
     /**
      * 删
@@ -202,90 +260,7 @@ public class UserController{
     }
 
 
-
-
     //endregion
-
-    //region 整合内容
-
-    //发送短信
-    @GetMapping("/sms")
-    public BaseResponse<ErrorCode> sendCode(@RequestParam String phonenumber) {
-        userService.sendCode(phonenumber);
-        return ResultUtils.success(SUCCESS);
-    }
-
-    //检验验证码 + 注册
-    @PostMapping("/signin")
-    public BaseResponse<ErrorCode> validRegister(@RequestBody AddUserRequest addUserRequest) {
-        if (addUserRequest == null) {
-            return ResultUtils.error(NULL_ERROR);
-        }
-
-        //手机号
-        String phone = addUserRequest.getPhone();
-
-        //密码
-        String password = addUserRequest.getPassword();
-
-        //验证码
-        String code = addUserRequest.getCode();
-
-        userService.signIn(phone, password, code);
-        return ResultUtils.success(SUCCESS);
-    }
-
-    @PostMapping("/login")
-    public BaseResponse<Serializable> login(@RequestBody User user) {
-
-        String Phonenumber = user.getPhonenumber();
-        String password = user.getPassword();
-
-        UsernamePasswordToken token = new UsernamePasswordToken(Phonenumber, password); //用于和原本UserRealm生成的token对比
-
-        Subject subject = SecurityUtils.getSubject();
-        // 用户认证
-        try {
-            subject.login(token);
-        } catch (AuthenticationException e) {
-            if (e instanceof IncorrectCredentialsException) {
-                throw new BusinessException(ErrorCode.INCORRECT_PWD);
-            }
-        }
-
-        // 认证成功
-        Serializable tokenId = subject.getSession().getId();
-        return ResultUtils.success(tokenId);
-    }
-
-
-    @PostMapping("/logout")
-    public void logout() {
-        Subject subject = SecurityUtils.getSubject();
-        if (subject.isAuthenticated()) {
-            subject.logout();
-        }
-    }
-
-    // 获取用户基本信息
-    @GetMapping("/info")
-    public BaseResponse<JSONObject> getBasicInfo() {
-        User user = (User) SecurityUtils.getSubject().getPrincipal(); // 获取当前登录用户（不用重新调数据库）
-        String phonenumber = user.getPhonenumber();
-        String name = user.getUserName();
-        String avatar = user.getAvatar();
-
-        JSONObject userInfo = new JSONObject();
-        userInfo.put("phone", phonenumber);
-        userInfo.put("name", name);
-        userInfo.put("avatar", avatar);
-
-        return ResultUtils.success(userInfo);
-    }
-
-
-    //endregion
-
 
 
 }
