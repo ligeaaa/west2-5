@@ -21,5 +21,7 @@ public class AddUserRequest {
     private String sex;
     //头像
     private String avatar;
+    //手机验证码
+    private String code;
 
 }

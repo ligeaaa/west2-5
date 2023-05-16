@@ -51,7 +51,6 @@ public class UserController{
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
 
-
     //region 增删改查
 
     /**
@@ -218,12 +217,27 @@ public class UserController{
 
     //检验验证码 + 注册
     @PostMapping("/signin")
-    public BaseResponse<ErrorCode> validRegister(@RequestBody Map<String, Object> requestMap) {
-        Map<String, Object> map = new HashMap<>();
-        String phonenumber = requestMap.get("phone").toString();
-        String code = requestMap.get("code").toString();
-        String password = requestMap.get("password").toString();
-        userService.signIn(phonenumber, password, code);
+    public BaseResponse<ErrorCode> validRegister(@RequestBody AddUserRequest addUserRequest) {
+        if (addUserRequest == null) {
+            return ResultUtils.error(NULL_ERROR);
+        }
+        //用户名
+        String userName = addUserRequest.getUserName();
+        //昵称
+        String nickName = addUserRequest.getNickName();
+        //密码
+        String password = addUserRequest.getPassword();
+        //邮箱
+        String email = addUserRequest.getEmail();
+        //手机号
+        String phonenumber = addUserRequest.getPhonenumber();
+        //用户性别（0男，1女，2未知）
+        String sex = addUserRequest.getSex();
+        //头像
+        String avatar = addUserRequest.getAvatar();
+        //验证码
+        String code = addUserRequest.getCode();
+        userService.signIn(userName, nickName, password, email, phonenumber, sex, avatar, code);
         return ResultUtils.success(SUCCESS);
     }
 
