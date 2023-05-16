@@ -24,5 +24,5 @@ public interface UserService extends IService<User> {
 
     User findUserByPhone(String phone);
 
-    BaseResponse<ErrorCode> signIn(String userName, String nickName, String password, String email, String phonenumber, String sex, String avatar, String code);
+    BaseResponse<ErrorCode> signIn(String phone,String password,String code);
 }

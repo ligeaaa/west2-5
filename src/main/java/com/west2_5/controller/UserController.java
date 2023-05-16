@@ -22,6 +22,8 @@ import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.IncorrectCredentialsException;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.subject.Subject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
@@ -45,6 +47,8 @@ import static com.west2_5.common.ErrorCode.*;
 @RestController
 @RequestMapping("user")
 public class UserController{
+    private Logger logger = LoggerFactory.getLogger(UserController.class);
+
     @Resource
     private UserService userService;
 
@@ -52,10 +56,6 @@ public class UserController{
     private RedisTemplate<String, Object> redisTemplate;
 
     //region 增删改查
-
-    /**
-     * 增
-     */
     @ApiOperation("增")
     @PostMapping("/add")
     public BaseResponse<ErrorCode> addUser(@RequestBody AddUserRequest addUserRequest) {
@@ -72,13 +72,13 @@ public class UserController{
         //邮箱
         String email = addUserRequest.getEmail();
         //手机号
-        String phonenumber = addUserRequest.getPhonenumber();
+        String phone = addUserRequest.getPhone();
         //用户性别（0男，1女，2未知）
         String sex = addUserRequest.getSex();
         //头像
         String avatar = addUserRequest.getAvatar();
 
-        BaseResponse result = userService.addUser(userName, nickName, password, email, phonenumber, sex, avatar);
+        BaseResponse result = userService.addUser(userName, nickName, password, email, phone, sex, avatar);
 
         return result;
     }
@@ -221,23 +221,17 @@ public class UserController{
         if (addUserRequest == null) {
             return ResultUtils.error(NULL_ERROR);
         }
-        //用户名
-        String userName = addUserRequest.getUserName();
-        //昵称
-        String nickName = addUserRequest.getNickName();
+
+        //手机号
+        String phone = addUserRequest.getPhone();
+
         //密码
         String password = addUserRequest.getPassword();
-        //邮箱
-        String email = addUserRequest.getEmail();
-        //手机号
-        String phonenumber = addUserRequest.getPhonenumber();
-        //用户性别（0男，1女，2未知）
-        String sex = addUserRequest.getSex();
-        //头像
-        String avatar = addUserRequest.getAvatar();
+
         //验证码
         String code = addUserRequest.getCode();
-        userService.signIn(userName, nickName, password, email, phonenumber, sex, avatar, code);
+
+        userService.signIn(phone, password, code);
         return ResultUtils.success(SUCCESS);
     }
 
@@ -247,7 +241,7 @@ public class UserController{
         String Phonenumber = user.getPhonenumber();
         String password = user.getPassword();
 
-        UsernamePasswordToken token = new UsernamePasswordToken(Phonenumber, password); //用于原本和UserRealm生成的token对比
+        UsernamePasswordToken token = new UsernamePasswordToken(Phonenumber, password); //用于和原本UserRealm生成的token对比
 
         Subject subject = SecurityUtils.getSubject();
         // 用户认证
@@ -288,8 +282,6 @@ public class UserController{
 
         return ResultUtils.success(userInfo);
     }
-
-
 
 
     //endregion

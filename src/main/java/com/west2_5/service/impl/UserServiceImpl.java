@@ -11,6 +11,7 @@ import com.west2_5.model.entity.User;
 import com.west2_5.mapper.UserMapper;
 import com.west2_5.service.UserService;
 import com.west2_5.utils.SendSmsUtil;
+import com.west2_5.utils.SnowflakeUtil;
 import org.apache.shiro.crypto.SecureRandomNumberGenerator;
 import org.apache.shiro.crypto.hash.SimpleHash;
 import org.slf4j.Logger;
@@ -145,10 +146,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     //region整合
 
 
-    public void sendCode(String phonenumber) {
+    public void sendCode(String phoneNumber) {
 
         // 判断手机号是否已被注册
-        if (userMapper.findUserByPhone(phonenumber) != null) {
+        if (userMapper.findUserByPhone(phoneNumber) != null) {
             throw new BusinessException(ErrorCode.PHONE_HAS_EXITED);
         }
 
@@ -156,26 +157,25 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         String code = String.valueOf((int) ((Math.random() * 9 + 1) * 10000));
 
         // 将验证码存入 Redis（有效期5分钟）
-        redisTemplate.opsForValue().set(phonenumber, code, 5, TimeUnit.MINUTES);
+        redisTemplate.opsForValue().set(phoneNumber, code, 5, TimeUnit.MINUTES);
 
         // 调用短信发送接口发送验证码
-        SendSmsUtil.sendCode(phonenumber,code);
+        SendSmsUtil.sendCode(phoneNumber,code);
     }
 
-
-
-
-    public User findUserByPhone(String phonenumber) {
-        User user = userMapper.findUserByPhone(phonenumber);
+    public User findUserByPhone(String phoneNumber) {
+        User user = userMapper.findUserByPhone(phoneNumber);
         if(user == null){
             throw new BusinessException(ErrorCode.USER_UNKNOWN);
         }
         return user;
     }
 
-    @Override
-    public BaseResponse<ErrorCode> signIn(String userName, String nickName, String password, String email, String phonenumber, String sex, String avatar, String code) {
-        String redisCode = redisTemplate.opsForValue().get(phonenumber);
+    public BaseResponse<ErrorCode> signIn(String phone, String password, String code) {
+        logger.info("手机号："+phone);
+
+        String redisCode = redisTemplate.opsForValue().get(phone);
+
         //判断是否填写验证码
         if (code == null){
             return ResultUtils.error(NULL_ERROR,"验证码未填写");
@@ -199,46 +199,22 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         //logger.info("原始密码"+password);
         //logger.info("加密密码"+encryptedPwd);
+
         //TODO 判断userid是否存在
 
-        LocalDateTime localDateTime = LocalDateTime.now();
-        user.setUserName(userName);
+        // 雪花算法生成 Id
+        SnowflakeUtil idGenerator = new SnowflakeUtil(1, 1);
+        long userId = idGenerator.nextId();
+
+        user.setId(userId);
+        user.setPhonenumber(phone);
+        user.setUserName(phone); //注册时先默认和手机号一样
         user.setPassword(encryptedPwd);
-        user.setPhonenumber(phonenumber);
         user.setUserSalt(salt);
-        user.setStatus(NORMAL_WORKING);
-        user.setRole(NORMAL_ROLE);
-        user.setCreateTime(localDateTime);
-        user.setUpdateTime(localDateTime);
 
-        //region 各属性null的判断以及对应的处理
-        if (nickName == null){
-            user.setNickName(userName);
-        }else{
-            user.setNickName(nickName);
-        }
-
-        if (email == null){
-            user.setEmail("null");
-        }else{
-            user.setEmail(email);
-        }
-
-        if (sex == null){
-            user.setSex(UNKNOWN_GENDER);
-        }else{
-            user.setSex(sex);
-        }
-
-        if (avatar == null){
-            user.setAvatar("默认路径");
-        }else{
-            user.setAvatar(avatar);
-        }
-        //endregion
+        userMapper.register(user);
 
         return ResultUtils.success(SUCCESS);
-        // Todo: 解密匹配写在 UserRealm
     }
 
 
