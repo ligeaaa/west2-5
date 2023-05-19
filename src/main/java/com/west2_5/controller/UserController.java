@@ -1,6 +1,7 @@
 package com.west2_5.controller;
 
 
+import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -38,13 +39,6 @@ import java.util.Map;
 
 import static com.west2_5.common.ErrorCode.*;
 
-
-/**
- * 用户表(User)表控制层
- *
- * @author makejava
- * @since 2023-04-30 02:24:06
- */
 @RestController
 @RequestMapping("user")
 public class UserController {
@@ -92,16 +86,18 @@ public class UserController {
         String Phonenumber = user.getPhonenumber();
         String password = user.getPassword();
 
-        UsernamePasswordToken token = new UsernamePasswordToken(Phonenumber, password); //用于和原本UserRealm生成的token对比
-
+        UsernamePasswordToken auth = new UsernamePasswordToken(Phonenumber, password); //用于和原本UserRealm生成的token对比
         Subject subject = SecurityUtils.getSubject();
-        Serializable tokenId = null;
-        // 用户认证
+
         try {
-            subject.login(token);
-            // 认证成功
-            tokenId = subject.getSession().getId();
-            return ResultUtils.success(tokenId);
+            subject.login(auth);
+            User authUser = (User) SecurityUtils.getSubject().getPrincipal();
+            Long userId = authUser.getId();
+            Serializable tokenId = subject.getSession().getId();
+            JSONObject authInfo = new JSONObject();
+            authInfo.put("userId",userId);
+            authInfo.put("token",tokenId);
+            return ResultUtils.success(authInfo);
         } catch (AuthenticationException e) {
             if (e instanceof IncorrectCredentialsException) {
                return ResultUtils.error(INCORRECT_PWD);
@@ -109,7 +105,6 @@ public class UserController {
         }
         return ResultUtils.error(USER_UNKNOWN);
     }
-
 
     @PostMapping("/logout")
     public void logout() {
@@ -136,14 +131,6 @@ public class UserController {
     }
 
 
-    //endregion
-
-
-    //region 删改查
-
-    /**
-     * 删
-     */
     @ApiOperation("删")
     @PostMapping("/delete")
     public BaseResponse<Boolean> deleteUserById(Long id) {
@@ -153,9 +140,6 @@ public class UserController {
         return ResultUtils.success(userService.removeById(id));
     }
 
-    /**
-     * 改
-     */
     @ApiOperation("更新")
     @PostMapping("/update")
     public BaseResponse updateUserById(@RequestBody UpdateUserById updateUserById, HttpServletRequest request) {
@@ -184,9 +168,7 @@ public class UserController {
         return userService.updateUserById(id, userName, nickName, password, status, email, phonenumber, sex, avatar);
     }
 
-    /**
-     * 查
-     */
+
     @ApiOperation("查询")
     @PostMapping("/select")
     public BaseResponse<List<User>> selectUser(@RequestBody SelectUserRequest selectUserRequest, HttpServletRequest request) {
@@ -258,10 +240,6 @@ public class UserController {
 
         return ResultUtils.success(result.getRecords());
     }
-
-
-    //endregion
-
 
 }
 

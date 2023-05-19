@@ -1,5 +1,6 @@
 package com.west2_5.model.entity;
 
+import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.Date;
 
@@ -20,7 +21,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 @AllArgsConstructor
 @NoArgsConstructor
 @TableName("user")
-public class User  {
+public class User{
     //主键@TableId
     private Long id;
 
@@ -52,6 +53,7 @@ public class User  {
     private LocalDateTime updateTime;
     //加密用盐值
     private String userSalt;
+
 
 
 }

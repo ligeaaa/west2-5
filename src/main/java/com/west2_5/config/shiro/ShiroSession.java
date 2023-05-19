@@ -20,7 +20,7 @@ import java.io.Serializable;
 
 public class ShiroSession extends DefaultWebSessionManager {
 
-    private static final String AUTH_TOKEN = "authToken";
+    private static final String AUTH_TOKEN = "AuthToken";
 
     private static final String REFERENCED_SESSION_ID_SOURCE = "Stateless request";
 
