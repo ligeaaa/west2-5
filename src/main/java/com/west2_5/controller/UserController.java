@@ -2,9 +2,8 @@ package com.west2_5.controller;
 
 
 import com.alibaba.fastjson2.JSONObject;
-import com.west2_5.common.BaseResponse;
-import com.west2_5.common.ErrorCode;
-import com.west2_5.common.ResultUtils;
+import com.west2_5.common.ResponseResult;
+import com.west2_5.exception.BusinessException;
 import com.west2_5.model.entity.User;
 import com.west2_5.model.request.user.AddUserRequest;
 import com.west2_5.service.UserService;
@@ -22,7 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import java.io.Serializable;
 
-import static com.west2_5.common.ErrorCode.*;
+import static com.west2_5.common.ResponseCode.*;
 
 @RestController
 @RequestMapping("/user")
@@ -36,60 +35,47 @@ public class UserController {
     private RedisTemplate<String, Object> redisTemplate;
 
 
-    //region 整合内容
-
     //发送短信
     @GetMapping("/sms")
-    public BaseResponse<ErrorCode> sendCode(@RequestParam String phonenumber) {
-        userService.sendCode(phonenumber);
-        return ResultUtils.success(SUCCESS);
+    public ResponseResult sendCode(@RequestParam String phone) {
+        userService.sendCode(phone);
+        return ResponseResult.success();
     }
 
     //检验验证码 + 注册
     @PostMapping("/signin")
-    public BaseResponse<ErrorCode> validRegister(@RequestBody AddUserRequest addUserRequest) {
-        if (addUserRequest == null) {
-            return ResultUtils.error(NULL_ERROR);
-        }
+    public ResponseResult validRegister(@RequestBody AddUserRequest addUserRequest) {
 
-        //手机号
         String phone = addUserRequest.getPhone();
-
-        //密码
         String password = addUserRequest.getPassword();
-
-        //验证码
         String code = addUserRequest.getCode();
 
         userService.signIn(phone, password, code);
-        return ResultUtils.success(SUCCESS);
+        return ResponseResult.success();
     }
 
     @PostMapping("/login")
-    public BaseResponse<Serializable> login(@RequestBody User user) {
+    public ResponseResult login(@RequestBody User user) {
 
         String phone = user.getPhone();
         String password = user.getPassword();
 
         UsernamePasswordToken auth = new UsernamePasswordToken(phone, password); //用于和原本UserRealm生成的token对比
         Subject subject = SecurityUtils.getSubject();
+        Serializable tokenId = "";
 
         try {
             subject.login(auth);
             User authUser = (User) SecurityUtils.getSubject().getPrincipal();
             Long userId = authUser.getUserId();
-            Serializable tokenId = subject.getSession().getId();
-            JSONObject authInfo = new JSONObject();
-            authInfo.put("userId",userId);
-            authInfo.put("token",tokenId);
-            return ResultUtils.success(authInfo);
+            tokenId = subject.getSession().getId();
         } catch (AuthenticationException e) {
             if (e instanceof IncorrectCredentialsException) {
-               return ResultUtils.error(INCORRECT_PWD);
+               throw new BusinessException(INCORRECT_PWD);
             }
         }
-        // FIXME: 拦截后仍返回success
-        return ResultUtils.error(USER_UNKNOWN);
+
+        return ResponseResult.success(tokenId);
     }
 
     @PostMapping("/logout")
@@ -102,18 +88,17 @@ public class UserController {
 
     // 获取用户基本信息
     @GetMapping("/info")
-    public BaseResponse<JSONObject> getBasicInfo() {
+    public ResponseResult<JSONObject> getBasicInfo() {
         User user = (User) SecurityUtils.getSubject().getPrincipal(); // 获取当前登录用户（不用重新调数据库）
-        String phone = user.getPhone();
+
         String name = user.getUserName();
         String avatar = user.getAvatar();
 
         JSONObject userInfo = new JSONObject();
-        userInfo.put("phone", phone);
         userInfo.put("name", name);
         userInfo.put("avatar", avatar);
 
-        return ResultUtils.success(userInfo);
+        return ResponseResult.success(userInfo);
     }
 
 }

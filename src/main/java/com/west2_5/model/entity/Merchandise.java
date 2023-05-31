@@ -1,27 +1,18 @@
 package com.west2_5.model.entity;
 
-import java.time.LocalDateTime;
-import java.util.Date;
-
-import java.io.Serializable;
+import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-/**
- * 游戏账号商品
- *
- * @author makejava
- * @since 2023-04-30 02:24:06
- */
-@SuppressWarnings("serial")
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @TableName("merchandise")
 public class Merchandise  {
 
+    @TableId
     private Long merchandiseId;
 
     private Long sellerId;
@@ -33,8 +24,6 @@ public class Merchandise  {
     private Double price;
 
     private String introduction;
-
-    private String pictures;
 
     /**
      *  1：上架状态【默认】

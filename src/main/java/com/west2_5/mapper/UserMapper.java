@@ -6,20 +6,13 @@ import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
-
-/**
- * 用户表(User)表数据库访问层
- *
- * @author makejava
- * @since 2023-04-30 02:24:06
- */
 @Mapper
 public interface UserMapper extends BaseMapper<User> {
 
-    @Insert("insert into user(id,phonenumber,password,user_name,userSalt) values (#{id},#{phonenumber},#{password},#{userName},#{userSalt})")
+    @Insert("insert into user(user_id,phone,password,user_name,salt) values (#{userId},#{phone},#{password},#{userName},#{salt})")
     void register(User user);
 
-    @Select("select * from user where phonenumber = #{phonenumber}")
-    User findUserByPhone(String userPhone);
+    @Select("select * from user where phone = #{phone}")
+    User findUserByPhone(String phone);
 
 }

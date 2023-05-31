@@ -1,10 +1,8 @@
 package com.west2_5.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.west2_5.common.BaseResponse;
-import com.west2_5.common.ErrorCode;
-import com.west2_5.common.ResultUtils;
+import com.west2_5.common.ResponseCode;
+import com.west2_5.common.ResponseResult;
 import com.west2_5.controller.UserController;
 import com.west2_5.exception.BusinessException;
 import com.west2_5.model.entity.User;
@@ -20,19 +18,10 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.time.LocalDateTime;
 import java.util.concurrent.TimeUnit;
 
-import static com.west2_5.common.ErrorCode.*;
-import static com.west2_5.constants.UserConstant.*;
+import static com.west2_5.common.ResponseCode.*;
 
-
-/**
- * 用户表(User)表服务实现类
- *
- * @author makejava
- * @since 2023-04-30 02:24:06
- */
 @Service("userService")
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
 
@@ -44,52 +33,49 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Resource
     RedisTemplate<String, String> redisTemplate;
 
-    public void sendCode(String phoneNumber) {
+    public void sendCode(String phone) {
 
         // 判断手机号是否已被注册
-        if (userMapper.findUserByPhone(phoneNumber) != null) {
-            throw new BusinessException(ErrorCode.PHONE_HAS_EXITED);
+        if (userMapper.findUserByPhone(phone) != null) {
+            throw new BusinessException(ResponseCode.PHONE_HAS_EXITED);
         }
 
         // 生成5位随机数字验证码
         String code = String.valueOf((int) ((Math.random() * 9 + 1) * 10000));
 
         // 将验证码存入 Redis（有效期5分钟）
-        redisTemplate.opsForValue().set(phoneNumber, code, 5, TimeUnit.MINUTES);
+        redisTemplate.opsForValue().set(phone, code, 5, TimeUnit.MINUTES);
 
         // 调用短信发送接口发送验证码
-        SendSmsUtil.sendCode(phoneNumber,code);
+        SendSmsUtil.sendCode(phone,code);
     }
 
-    public User findUserByPhone(String phoneNumber) {
-        User user = userMapper.findUserByPhone(phoneNumber);
+    public User findUserByPhone(String phone) {
+        User user = userMapper.findUserByPhone(phone);
         if(user == null){
-            throw new BusinessException(USER_UNKNOWN);
+            throw new BusinessException(ResponseCode.USER_UNKNOWN);
         }
         return user;
     }
 
-    public BaseResponse<ErrorCode> signIn(String phone, String password, String code) {
-        logger.info("手机号："+phone);
+    public void signIn(String phone, String password, String code) {
+
+        if (userMapper.findUserByPhone(phone) != null) {
+            throw new BusinessException(ResponseCode.PHONE_HAS_EXITED);
+        }
 
         String redisCode = redisTemplate.opsForValue().get(phone);
 
-        //判断是否填写验证码
-        if (code == null){
-            return ResultUtils.error(NULL_ERROR,"验证码未填写");
-        }
         //判断验证码是否已过期
         if (redisCode == null) {
-            throw new BusinessException(ErrorCode.VERIFY_CODE_EXPIRED);
+            throw new BusinessException(ResponseCode.VERIFY_CODE_EXPIRED);
         }
         //判断验证码是否正确
         if (!redisCode.equals(code)) {
-            throw new BusinessException(ErrorCode.VERIFY_CODE_MISMATCH);
+            throw new BusinessException(ResponseCode.VERIFY_CODE_MISMATCH);
         }
 
         User user = new User();
-
-
         // salt 加密
         String salt = new SecureRandomNumberGenerator().nextBytes().toString(); // toHex()的话 Realm也要改动
         SimpleHash simpleHash = new SimpleHash("md5", password, salt,2);
@@ -98,7 +84,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         //logger.info("原始密码"+password);
         //logger.info("加密密码"+encryptedPwd);
 
-        //TODO 判断userid是否存在
 
         // 雪花算法生成 Id
         SnowflakeUtil idGenerator = new SnowflakeUtil(1, 1);
@@ -112,7 +97,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         userMapper.register(user);
 
-        return ResultUtils.success(SUCCESS);
     }
 
 }

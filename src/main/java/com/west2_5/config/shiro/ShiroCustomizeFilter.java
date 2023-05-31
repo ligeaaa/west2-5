@@ -15,7 +15,7 @@ public class ShiroCustomizeFilter extends UserFilter {
         response.setContentType("application/json; charset=utf-8");
         JSONObject res = new JSONObject();
         res.put("code", "-1");
-        res.put("msg", "登录已失效");
+        res.put("message", "登录已失效");
         response.getWriter().print(res.toString());
     }
 }

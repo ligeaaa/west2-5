@@ -3,6 +3,7 @@ package com.west2_5.config.shiro;
 
 import com.west2_5.model.entity.User;
 import com.west2_5.service.UserService;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationInfo;
 import org.apache.shiro.realm.AuthorizingRealm;
@@ -11,6 +12,7 @@ import org.apache.shiro.util.ByteSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
+@Slf4j
 public class UserRealm extends AuthorizingRealm{
 
     @Autowired
@@ -26,6 +28,7 @@ public class UserRealm extends AuthorizingRealm{
 
         // 找到数据库该用户的信息
         User user = userService.findUserByPhone(inputPhone);
+
         String dbPwd = user.getPassword(); //数据中的加密密码
         String salt = user.getSalt();
 

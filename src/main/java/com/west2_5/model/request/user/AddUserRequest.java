@@ -7,13 +7,9 @@ import java.time.LocalDateTime;
 @Data
 public class AddUserRequest {
 
-    private String userName;
-
     private String password;
 
     private String phone;
-
-    private String avatar;
 
     private String code;
 

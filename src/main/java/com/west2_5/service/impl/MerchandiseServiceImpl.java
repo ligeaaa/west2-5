@@ -1,60 +1,54 @@
 package com.west2_5.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.west2_5.common.BaseResponse;
-import com.west2_5.common.ResultUtils;
+import com.west2_5.common.ResponseCode;
+import com.west2_5.exception.BusinessException;
+import com.west2_5.mapper.MerchandiseImgMapper;
 import com.west2_5.model.entity.Merchandise;
 import com.west2_5.mapper.MerchandiseMapper;
+import com.west2_5.model.entity.MerchandiseImg;
+import com.west2_5.model.request.merchandise.AddMerchandiseRequest;
 import com.west2_5.service.MerchandiseService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.BeanUtils;
 
 import javax.annotation.Resource;
-import java.time.LocalDateTime;
 
-import static com.west2_5.common.ErrorCode.*;
+import java.util.List;
 
-/**
- * (Merchandise)表服务实现类
- *
- * @author makejava
- * @since 2023-04-30 02:24:06
- */
+
+@Slf4j
 @Service("merchandiseService")
 public class MerchandiseServiceImpl extends ServiceImpl<MerchandiseMapper, Merchandise> implements MerchandiseService {
 
     @Resource
     private MerchandiseMapper merchandiseMapper;
 
+    @Resource
+    private MerchandiseImgMapper merchandiseImgMapper;
+
     @Override
-    public BaseResponse addMerchandise(Long userid, String title, String tag, String pictures, double price, String introduction) {
+    public void addMerchandise(AddMerchandiseRequest merchandiseRequest) {
 
+         Merchandise  merchandise = new Merchandise();
+         BeanUtils.copyProperties(merchandiseRequest,merchandise);
 
-        Merchandise merchandise = new Merchandise();
+        merchandiseMapper.insert(merchandise);
+        Long merchandiseId = merchandise.getMerchandiseId();
 
-        merchandise.setSellerId(userid);
-        merchandise.setTitle(title);
-        if (tag == null){
-            merchandise.setTagId(null);
+        List<String> pictures = merchandiseRequest.getPictures();
+
+        int priority = 1;
+        for(String url: pictures){
+            MerchandiseImg img = new MerchandiseImg();
+            img.setMerchandiseId(merchandiseId);
+            img.setImgUrl(url);
+            img.setImgPriority(priority);
+            merchandiseImgMapper.insert(img);
+            priority++;
         }
-        if (pictures == null){
-            merchandise.setPictures("null");
-        }
 
-        merchandise.setPrice(price);
-        if (introduction == null){
-            merchandise.setIntroduction("这里没有简介哦~");
-        }
-
-        merchandise.setStatus(2);
-
-
-        boolean saveResult = this.save(merchandise);
-        if (saveResult){
-            return ResultUtils.success(SUCCESS);
-        }else{
-            return ResultUtils.error(SYSTEM_ERROR);
-        }
     }
 
 }
