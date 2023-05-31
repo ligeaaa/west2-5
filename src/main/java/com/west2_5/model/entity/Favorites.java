@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 /**
- * (Favorites)表实体类
+ * 用户个人收藏的商品
  *
  * @author makejava
  * @since 2023-05-07 14:23:40
@@ -22,20 +22,9 @@ import com.baomidou.mybatisplus.annotation.TableName;
 @TableName("favorites")
 public class Favorites  {
     @TableId
-    private Long id;
+    private Long favoriteId;
 
     private Long userId;
     
     private Long merchandiseId;
-    
-    private String alias;
-    
-    private String groupName;
-    
-    private LocalDateTime createTime;
-    
-    private LocalDateTime updateTime;
-
-
-
 }

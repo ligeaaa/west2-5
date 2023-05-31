@@ -36,7 +36,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void configureMessageBroker(MessageBrokerRegistry config) {
 
         /*
-         * 如果有一个客户端发送消息到 "/app/hello"，
+         * 客户端发送过来的消息，需要以"/app"为前缀，再经过Broker转发给响应的Controller
+         * 比如说：如果有一个客户端发送消息到 "/app/hello"，
          * 那么 Spring WebSocket 将会查找带有 @MessageMapping("/hello") 注解的方法来处理该消息
          */
         config.setApplicationDestinationPrefixes("/app"); // 定义应用程序端点前缀

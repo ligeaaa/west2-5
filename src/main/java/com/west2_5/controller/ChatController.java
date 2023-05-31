@@ -1,22 +1,13 @@
 package com.west2_5.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.west2_5.model.entity.Message;
+import com.west2_5.model.entity.ChatMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.messaging.simp.annotation.SubscribeMapping;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestBody;
-
-import java.lang.reflect.Array;
-import java.util.Arrays;
 
 /*
  *客户端发送消息到/app/chat目的地，
@@ -25,7 +16,7 @@ import java.util.Arrays;
  */
 @Slf4j
 @Controller
-public class MessageController {
+public class ChatController {
 
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
@@ -44,10 +35,10 @@ public class MessageController {
     }
 
     @MessageMapping("/chat/{recipient}")
-    public void sendMessageToUser(Message message, @DestinationVariable("recipient") String recipient){
+    public void sendMessageToUser(ChatMessage chatMessage, @DestinationVariable("recipient") String recipient){
         //消息将被发送到 /user/{recipient}/queue/messages 目的地
-        log.info(message.getContent());
-        messagingTemplate.convertAndSendToUser(recipient, "/queue/messages", message);
+        log.info(chatMessage.getContent());
+        messagingTemplate.convertAndSendToUser(recipient, "/queue/messages", chatMessage);
     }
 
 }

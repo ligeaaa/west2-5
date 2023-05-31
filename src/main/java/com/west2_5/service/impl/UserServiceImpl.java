@@ -104,55 +104,16 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         SnowflakeUtil idGenerator = new SnowflakeUtil(1, 1);
         long userId = idGenerator.nextId();
 
-        user.setId(userId);
-        user.setPhonenumber(phone);
+        user.setUserId(userId);
+        user.setPhone(phone);
         user.setUserName(phone); //注册时先默认和手机号一样
         user.setPassword(encryptedPwd);
-        user.setUserSalt(salt);
+        user.setSalt(salt);
 
         userMapper.register(user);
 
         return ResultUtils.success(SUCCESS);
     }
 
-    public BaseResponse updateUserById(Long id, String userName, String nickName, String password, String status, String email, String phonenumber, String sex, String avatar) {
-        //判断为空,判断id是否合法,判断id是否存在
-        if (id == null || id <= 0 || this.getById(id) == null){
-            return ResultUtils.error(PARAMS_ERROR);
-        }
-
-        UpdateWrapper<User> updateWrapper = new UpdateWrapper<>();
-        if (id != null){
-            updateWrapper.lambda().set(User::getId,id);
-        }
-        if (userName != null){
-            updateWrapper.lambda().set(User::getUserName,userName);
-        }
-        if (nickName != null){
-            updateWrapper.lambda().set(User::getNickName,nickName);
-        }
-        if (password != null){
-            updateWrapper.lambda().set(User::getPassword,password);
-        }
-        if (status != null){
-            updateWrapper.lambda().set(User::getStatus,status);
-        }
-        if (email != null){
-            updateWrapper.lambda().set(User::getEmail,email);
-        }
-        if (phonenumber != null){
-            updateWrapper.lambda().set(User::getPhonenumber,phonenumber);
-        }
-        if (sex != null){
-            updateWrapper.lambda().set(User::getSex,sex);
-        }
-        if (avatar != null){
-            updateWrapper.lambda().set(User::getAvatar,avatar);
-        }
-
-        updateWrapper.lambda().eq(User::getId,id);//判断依据
-        userMapper.update(null,updateWrapper);
-        return ResultUtils.success(SUCCESS);
-    }
 }
 

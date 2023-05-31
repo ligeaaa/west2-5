@@ -27,7 +27,7 @@ public class UserRealm extends AuthorizingRealm{
         // 找到数据库该用户的信息
         User user = userService.findUserByPhone(inputPhone);
         String dbPwd = user.getPassword(); //数据中的加密密码
-        String salt = user.getUserSalt();
+        String salt = user.getSalt();
 
         return new SimpleAuthenticationInfo(user, dbPwd, ByteSource.Util.bytes(salt),"" );
     }
