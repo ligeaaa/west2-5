@@ -6,6 +6,7 @@ public enum ResponseCode {
 
     //数据异常
     PARAMS_ERROR(30000, "请求参数错误"),
+    NULL_ERROR(30001, "参数为空"),
 
     //业务相关
     PHONE_HAS_EXITED(40001,"手机号已被注册"),
