@@ -1,11 +1,13 @@
 package com.west2_5.controller;
 
 
+import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.west2_5.common.ResponseResult;
 import com.west2_5.exception.BusinessException;
 import com.west2_5.model.entity.User;
 import com.west2_5.model.request.user.AddUserRequest;
+import com.west2_5.model.response.user.UserBasicInfo;
 import com.west2_5.service.UserService;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
@@ -94,11 +96,13 @@ public class UserController {
         String name = user.getUserName();
         String avatar = user.getAvatar();
 
-        JSONObject userInfo = new JSONObject();
-        userInfo.put("name", name);
-        userInfo.put("avatar", avatar);
+        UserBasicInfo basicInfo = new UserBasicInfo();
+        basicInfo.setName(name);
+        basicInfo.setAvatar(avatar);
 
-        return ResponseResult.success(userInfo);
+        JSONObject info=(JSONObject)JSON.toJSON(basicInfo);
+
+        return ResponseResult.success(info);
     }
 
 }

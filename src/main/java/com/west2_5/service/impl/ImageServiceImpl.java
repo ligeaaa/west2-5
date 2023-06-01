@@ -2,6 +2,8 @@ package com.west2_5.service.impl;
 
 import cn.hutool.http.HttpRequest;
 import com.alibaba.fastjson2.JSONObject;
+import com.west2_5.common.ResponseCode;
+import com.west2_5.exception.BusinessException;
 import com.west2_5.service.ImageService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -44,7 +46,6 @@ public class ImageServiceImpl implements ImageService {
             //
         }
 
-        // FIXME: 图床无法上传重复图片
         HashMap<String, Object> paramMap = new HashMap<>(1);
         paramMap.put("smfile", tempFile);
 
@@ -56,9 +57,15 @@ public class ImageServiceImpl implements ImageService {
                 .timeout(20000)
                 .execute().body());
 
-        JSONObject data = body.getJSONObject("data");
+        String url = "";
+        try{
+            JSONObject data = body.getJSONObject("data");
+            url = data.getString("url");
+        }catch (Exception e){
+            throw new BusinessException(ResponseCode.IMAGE_ERROR,"上传了重复图片");
+        }
 
-        return data.getString("url");
+        return url;
     }
 
 }

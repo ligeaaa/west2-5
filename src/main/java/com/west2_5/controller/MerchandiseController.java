@@ -5,14 +5,14 @@ import com.west2_5.common.ResponseResult;
 import com.west2_5.exception.BusinessException;
 import com.west2_5.model.entity.User;
 import com.west2_5.model.request.merchandise.AddMerchandiseRequest;
+import com.west2_5.model.response.merchandise.MerchandiseDetails;
+import com.west2_5.model.response.merchandise.MerchandiseOverview;
 import com.west2_5.service.MerchandiseService;
 import org.apache.shiro.SecurityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/merchandise")
@@ -25,11 +25,30 @@ public class MerchandiseController {
 
     @PostMapping("/add")
     public ResponseResult addMerchandise(@RequestBody AddMerchandiseRequest merchandise) {
-        User user = (User) SecurityUtils.getSubject().getPrincipal();
-        Long userId = user.getUserId();
+
+        Long userId = null;
+        try{
+            User user = (User) SecurityUtils.getSubject().getPrincipal();
+            userId = user.getUserId();
+        }catch (Exception e){
+            throw new BusinessException(ResponseCode.USER_NOT_LOGIN);
+        }
+
         merchandise.setSellerId(userId);
         merchandiseService.addMerchandise(merchandise);
         return ResponseResult.success();
+    }
+
+    @GetMapping("/details")
+    public ResponseResult viewMerchandiseDetails(@RequestParam Long mid) {
+        MerchandiseDetails details = merchandiseService.getMerchandiseDetails(mid);
+        return ResponseResult.success(details);
+    }
+
+    @GetMapping("/overview")
+    public ResponseResult viewMerchandiseDetails(@RequestParam int page) {
+        List<MerchandiseOverview> overviewList = merchandiseService.overviewMerchandise(page);
+        return ResponseResult.success(overviewList);
     }
 
 
