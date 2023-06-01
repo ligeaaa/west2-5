@@ -12,4 +12,5 @@ public interface UserService extends IService<User> {
 
     void signIn(String phone, String password, String code);
 
+    User getByUserId(Long userId);
 }

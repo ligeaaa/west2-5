@@ -32,6 +32,11 @@ public class FavoritesServiceImpl extends ServiceImpl<FavoritesMapper, Favorites
     @Resource
     private FavoritesService favoritesService;
 
+    /**
+     * 添加收藏
+     * @author Lige
+     * @since 2023-06-01
+     */
     @Override
     public ResponseResult addFavorite(AddFavoritesRequest addFavoritesRequest) {
 
@@ -70,6 +75,11 @@ public class FavoritesServiceImpl extends ServiceImpl<FavoritesMapper, Favorites
         return ResponseResult.success();
     }
 
+    /**
+     * 获得当前用户的收藏列表
+     * @author Lige
+     * @since 2023-06-01
+     */
     @Override
     public Page<Favorites> getFavorites(PageRequest pageRequest) {
         //获取当前用户信息
@@ -88,6 +98,11 @@ public class FavoritesServiceImpl extends ServiceImpl<FavoritesMapper, Favorites
         return favoritesPage;
     }
 
+    /**
+     * 取消收藏
+     * @author Lige
+     * @since 2023-06-01
+     */
     @Override
     public ResponseResult deleteFavorites(Long merchandiseId) {
         //获取当前用户信息

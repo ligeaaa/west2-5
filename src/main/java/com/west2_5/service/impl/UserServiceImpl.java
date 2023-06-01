@@ -1,5 +1,6 @@
 package com.west2_5.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.west2_5.common.ResponseCode;
 import com.west2_5.common.ResponseResult;
@@ -97,6 +98,18 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         userMapper.register(user);
 
+    }
+
+    /**
+     * 根据userId获取User
+     * @author Lige
+     * @since 2023-06-02
+     */
+    @Override
+    public User getByUserId(Long userId) {
+        LambdaQueryWrapper<User> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.eq(User::getUserId, userId);
+        return getOne(lambdaQueryWrapper);
     }
 
 }
