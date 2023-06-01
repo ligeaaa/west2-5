@@ -8,9 +8,15 @@ public class BusinessException extends RuntimeException {
     private String message;
 
 
+
     public BusinessException(ResponseCode code) {
         this.code = code.getCode();
         this.message = code.getMessage();
+    }
+
+    public BusinessException(ResponseCode code,String message) {
+        this.code = code.getCode();
+        this.message = message;
     }
 
     public int getCode() {
