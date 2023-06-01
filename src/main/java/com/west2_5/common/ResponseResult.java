@@ -30,6 +30,12 @@ public class ResponseResult<T> implements Serializable {
         this.data = data;
     }
 
+    public ResponseResult(int code, String message) {
+        this.code = code;
+        this.message = message;
+        this.data = null;
+    }
+
 
     // 默认成功（无数据返回）
     public static <T> ResponseResult<T> success() {
