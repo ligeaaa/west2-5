@@ -17,4 +17,5 @@ public interface MerchandiseService extends IService<Merchandise> {
     List<MerchandiseOverview> overviewMerchandise(int currentPage);
 
 
+    Merchandise getByMerchandiseId(Long merchandiseId);
 }

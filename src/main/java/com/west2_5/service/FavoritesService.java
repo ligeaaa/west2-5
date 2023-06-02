@@ -6,6 +6,9 @@ import com.west2_5.common.PageRequest;
 import com.west2_5.common.ResponseResult;
 import com.west2_5.model.entity.Favorites;
 import com.west2_5.model.request.favorites.AddFavoritesRequest;
+import com.west2_5.model.response.favorites.FavoritesDetails;
+
+import java.util.List;
 
 
 public interface FavoritesService extends IService<Favorites> {
@@ -13,7 +16,9 @@ public interface FavoritesService extends IService<Favorites> {
 
     ResponseResult addFavorite(AddFavoritesRequest addFavoritesRequest);
 
-    Page<Favorites> getFavorites(PageRequest pageRequest);
+    List<FavoritesDetails> getFavorites(PageRequest pageRequest);
 
     ResponseResult deleteFavorites(Long merchandiseId);
+
+    Boolean checkFavorites(Long merchandiseId);
 }

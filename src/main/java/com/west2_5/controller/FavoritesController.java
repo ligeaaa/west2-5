@@ -8,6 +8,7 @@ import com.west2_5.exception.BusinessException;
 import com.west2_5.model.entity.Favorites;
 import com.west2_5.model.entity.User;
 import com.west2_5.model.request.favorites.AddFavoritesRequest;
+import com.west2_5.model.response.favorites.FavoritesDetails;
 import com.west2_5.service.FavoritesService;
 import com.west2_5.utils.SnowflakeUtil;
 import org.apache.ibatis.annotations.Delete;
@@ -17,6 +18,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+
+import java.util.List;
 
 import static com.west2_5.common.ResponseCode.NULL_ERROR;
 
@@ -59,11 +62,19 @@ public class FavoritesController{
      * @since 2023-06-01
      */
     @GetMapping("/user/getFavorites")
-    private ResponseResult<Page<Favorites>> getFavorites(@RequestBody PageRequest pageRequest){
+    private ResponseResult<List<FavoritesDetails>> getFavorites(@RequestBody PageRequest pageRequest){
         return ResponseResult.success(favoritesService.getFavorites(pageRequest));
     }
 
-
+    /**
+     * 确认收藏状态
+     * @author Lige
+     * @since 2023-06-03
+     */
+    @GetMapping("/user/checkFavorites")
+    private ResponseResult<Boolean> checkFavorites(Long merchandiseId){
+        return ResponseResult.success(favoritesService.checkFavorites(merchandiseId));
+    }
 
 }
 

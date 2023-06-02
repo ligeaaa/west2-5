@@ -139,5 +139,17 @@ public class MerchandiseServiceImpl extends ServiceImpl<MerchandiseMapper, Merch
         return overviewList;
     }
 
+    /**
+     * 根据商品Id获取商品
+     * @author Lige
+     * @since 2023-06-03
+     */
+    @Override
+    public Merchandise getByMerchandiseId(Long merchandiseId) {
+        LambdaQueryWrapper<Merchandise> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.eq(Merchandise::getMerchandiseId, merchandiseId);
+        return getOne(lambdaQueryWrapper);
+    }
+
 }
 
