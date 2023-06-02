@@ -51,6 +51,29 @@ public class MerchandiseController {
         return ResponseResult.success(overviewList);
     }
 
+    @GetMapping("/publish")
+    public ResponseResult getMyPublishedMerchandise(@RequestParam int page) {
+        User user = (User) SecurityUtils.getSubject().getPrincipal();
+        Long userId = user.getUserId();
+        List<MerchandiseOverview> overviewList = merchandiseService.getMyPublishedMerchandise(userId, page);
+        return ResponseResult.success(overviewList);
+    }
+
+    @GetMapping("/out")
+    public ResponseResult getMyOutMerchandise(@RequestParam int page) {
+        User user = (User) SecurityUtils.getSubject().getPrincipal();
+        Long userId = user.getUserId();
+        List<MerchandiseOverview> overviewList = merchandiseService.getMyOutMerchandise(userId, page);
+        return ResponseResult.success(overviewList);
+    }
+
+    @PostMapping("/buy")
+    public ResponseResult Merchandise(@RequestParam Long mid) {
+        User user = (User) SecurityUtils.getSubject().getPrincipal();
+        Long userId = user.getUserId();
+        merchandiseService.buyMerchandise(userId,mid);
+        return ResponseResult.success();
+    }
 
 
 }

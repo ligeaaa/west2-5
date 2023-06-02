@@ -1,7 +1,7 @@
 package com.west2_5.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -11,14 +11,12 @@ import com.west2_5.mapper.MerchandiseImgMapper;
 import com.west2_5.mapper.MerchandiseMapper;
 import com.west2_5.mapper.TagMapper;
 import com.west2_5.mapper.UserMapper;
-import com.west2_5.model.entity.Merchandise;
-import com.west2_5.model.entity.MerchandiseImg;
-import com.west2_5.model.entity.Tag;
-import com.west2_5.model.entity.User;
+import com.west2_5.model.entity.*;
 import com.west2_5.model.request.merchandise.AddMerchandiseRequest;
 import com.west2_5.model.response.merchandise.MerchandiseDetails;
 import com.west2_5.model.response.merchandise.MerchandiseOverview;
 import com.west2_5.service.MerchandiseService;
+import com.west2_5.service.OrderService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -27,7 +25,7 @@ import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 
-/** 
+/**
  * @Date: 2023/5/31
  * @Author: RuiLin
  * @Description:
@@ -48,6 +46,22 @@ public class MerchandiseServiceImpl extends ServiceImpl<MerchandiseMapper, Merch
 
     @Resource
     private UserMapper userMapper;
+
+    @Resource
+    private OrderService orderService;
+
+    /**
+     * 根据商品Id获取商品
+     *
+     * @author Lige
+     * @since 2023-06-03
+     */
+    @Override
+    public Merchandise getByMerchandiseId(Long merchandiseId) {
+        LambdaQueryWrapper<Merchandise> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.eq(Merchandise::getMerchandiseId, merchandiseId);
+        return getOne(lambdaQueryWrapper);
+    }
 
     @Override
     public void addMerchandise(AddMerchandiseRequest merchandiseRequest) {
@@ -82,7 +96,7 @@ public class MerchandiseServiceImpl extends ServiceImpl<MerchandiseMapper, Merch
 
         LambdaQueryWrapper<Merchandise> merchandiseQuery = new LambdaQueryWrapper();
         merchandiseQuery.eq(Merchandise::getMerchandiseId, merchandiseId);
-        Merchandise merchandise = merchandiseMapper.selectOne(merchandiseQuery);
+        Merchandise merchandise = getByMerchandiseId(merchandiseId);
 
         Long tagId = merchandise.getTagId();
         LambdaQueryWrapper<Tag> tagQuery = new LambdaQueryWrapper();
@@ -93,7 +107,7 @@ public class MerchandiseServiceImpl extends ServiceImpl<MerchandiseMapper, Merch
         imgQuery.eq(MerchandiseImg::getMerchandiseId, merchandiseId);
         List<MerchandiseImg> images = merchandiseImgMapper.selectList(imgQuery);
         List<String> imgUrls = new ArrayList<>();
-        for(MerchandiseImg image: images){
+        for (MerchandiseImg image : images) {
             imgUrls.add(image.getImgUrl());
         }
 
@@ -123,14 +137,13 @@ public class MerchandiseServiceImpl extends ServiceImpl<MerchandiseMapper, Merch
         List<Merchandise> merchandises = resultPage.getRecords();
 
         List<String> imgUrls = new ArrayList<>();
-        for(Merchandise m: merchandises){
+        for (Merchandise m : merchandises) {
             MerchandiseOverview overview = new MerchandiseOverview();
             BeanUtils.copyProperties(m, overview);
 
             Long merchandiseId = m.getMerchandiseId();
             LambdaQueryWrapper<MerchandiseImg> imgQuery = new LambdaQueryWrapper();
-            imgQuery.eq(MerchandiseImg::getMerchandiseId, merchandiseId)
-                    .eq(MerchandiseImg::getImgPriority,1);
+            imgQuery.eq(MerchandiseImg::getMerchandiseId, merchandiseId).eq(MerchandiseImg::getImgPriority, 1);
             MerchandiseImg image = merchandiseImgMapper.selectOne(imgQuery);
             overview.setImgCover(image.getImgUrl());
             overviewList.add(overview);
@@ -139,16 +152,73 @@ public class MerchandiseServiceImpl extends ServiceImpl<MerchandiseMapper, Merch
         return overviewList;
     }
 
-    /**
-     * 根据商品Id获取商品
-     * @author Lige
-     * @since 2023-06-03
-     */
     @Override
-    public Merchandise getByMerchandiseId(Long merchandiseId) {
-        LambdaQueryWrapper<Merchandise> lambdaQueryWrapper = new LambdaQueryWrapper<>();
-        lambdaQueryWrapper.eq(Merchandise::getMerchandiseId, merchandiseId);
-        return getOne(lambdaQueryWrapper);
+    public List<MerchandiseOverview> getMyPublishedMerchandise(Long userId, int currentPage) {
+        List<MerchandiseOverview> overviewList = new ArrayList<>();
+
+        Page<Merchandise> page = new Page<>(currentPage, 4);
+        LambdaQueryWrapper<Merchandise> merchandiseQuery = new LambdaQueryWrapper();
+        merchandiseQuery.eq(Merchandise::getSellerId, userId).eq(Merchandise::getStatus, 0); //相当于比首页商品多了这行
+
+        IPage<Merchandise> resultPage = merchandiseMapper.selectPage(page, merchandiseQuery);
+        List<Merchandise> merchandises = resultPage.getRecords();
+
+        List<String> imgUrls = new ArrayList<>();
+        for (Merchandise m : merchandises) {
+            MerchandiseOverview overview = new MerchandiseOverview();
+            BeanUtils.copyProperties(m, overview);
+            Long merchandiseId = m.getMerchandiseId();
+            LambdaQueryWrapper<MerchandiseImg> imgQuery = new LambdaQueryWrapper();
+            imgQuery.eq(MerchandiseImg::getMerchandiseId, merchandiseId).eq(MerchandiseImg::getImgPriority, 1);
+            MerchandiseImg image = merchandiseImgMapper.selectOne(imgQuery);
+            overview.setImgCover(image.getImgUrl());
+            overviewList.add(overview);
+        }
+
+        return overviewList;
+    }
+
+    @Override
+    public List<MerchandiseOverview> getMyOutMerchandise(Long userId, int currentPage) {
+        List<MerchandiseOverview> overviewList = new ArrayList<>();
+
+        Page<Merchandise> page = new Page<>(currentPage, 4);
+        LambdaQueryWrapper<Merchandise> merchandiseQuery = new LambdaQueryWrapper();
+        merchandiseQuery.eq(Merchandise::getSellerId, userId).eq(Merchandise::getStatus, 1); //
+
+        IPage<Merchandise> resultPage = merchandiseMapper.selectPage(page, merchandiseQuery);
+        List<Merchandise> merchandises = resultPage.getRecords();
+
+        List<String> imgUrls = new ArrayList<>();
+        for (Merchandise m : merchandises) {
+            MerchandiseOverview overview = new MerchandiseOverview();
+            BeanUtils.copyProperties(m, overview);
+            Long merchandiseId = m.getMerchandiseId();
+            LambdaQueryWrapper<MerchandiseImg> imgQuery = new LambdaQueryWrapper();
+            imgQuery.eq(MerchandiseImg::getMerchandiseId, merchandiseId).eq(MerchandiseImg::getImgPriority, 1);
+            MerchandiseImg image = merchandiseImgMapper.selectOne(imgQuery);
+            overview.setImgCover(image.getImgUrl());
+            overviewList.add(overview);
+        }
+
+        return overviewList;
+    }
+
+
+    @Override
+    public void buyMerchandise(Long buyerId, Long merchandiseId) {
+        Merchandise merchandise = getByMerchandiseId(merchandiseId);
+
+        LambdaUpdateWrapper<Merchandise> merchandiseWrapper = new LambdaUpdateWrapper();
+        merchandiseWrapper.eq(Merchandise::getMerchandiseId, merchandiseId)
+                .set(Merchandise::getStatus, 2);
+        merchandiseMapper.update(merchandise,merchandiseWrapper);
+
+        Orders orders = new Orders();
+        BeanUtils.copyProperties(merchandise, orders);
+        orders.setOrderPrice(merchandise.getPrice());
+        orders.setBuyerId(buyerId);
+        orderService.generateOrder(orders);
     }
 
 }

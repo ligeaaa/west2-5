@@ -15,6 +15,10 @@ spring:
         max-active: 2
         max-idle: 2
         min-idle: 0
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
 
 mybatis:
   configuration:

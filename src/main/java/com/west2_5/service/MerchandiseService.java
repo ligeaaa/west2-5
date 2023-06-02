@@ -10,12 +10,17 @@ import java.util.List;
 
 public interface MerchandiseService extends IService<Merchandise> {
 
+    Merchandise getByMerchandiseId(Long merchandiseId);
+
     void addMerchandise(AddMerchandiseRequest merchandise);
 
     MerchandiseDetails getMerchandiseDetails(Long merchandiseId);
 
     List<MerchandiseOverview> overviewMerchandise(int currentPage);
 
+    List<MerchandiseOverview> getMyPublishedMerchandise(Long userId, int currentPage);
 
-    Merchandise getByMerchandiseId(Long merchandiseId);
+    List<MerchandiseOverview> getMyOutMerchandise(Long userId, int currentPage);
+
+    void buyMerchandise(Long buyerId, Long merchandiseId);
 }

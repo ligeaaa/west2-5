@@ -26,8 +26,8 @@ public class Merchandise  {
     private String introduction;
 
     /**
-     *  1：上架状态【默认】
-     *  2：已下架
+     *  0：上架状态【默认】
+     *  1：已下架
      */
     private Integer status;
 
