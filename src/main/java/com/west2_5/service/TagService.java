@@ -1,7 +1,11 @@
 package com.west2_5.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.west2_5.common.ResponseResult;
 import com.west2_5.model.entity.Tag;
+import com.west2_5.model.request.tag.AddTagRequest;
+
+import java.util.List;
 
 
 /**
@@ -12,4 +16,11 @@ import com.west2_5.model.entity.Tag;
  */
 public interface TagService extends IService<Tag> {
 
+    ResponseResult addTag(AddTagRequest addTagRequest);
+
+    ResponseResult stopTag(Long tagId);
+
+    ResponseResult startTag(Long tagId);
+
+    ResponseResult<List<Tag>> getTags();
 }

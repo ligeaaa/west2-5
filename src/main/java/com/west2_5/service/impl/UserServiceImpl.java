@@ -11,6 +11,7 @@ import com.west2_5.mapper.UserMapper;
 import com.west2_5.service.UserService;
 import com.west2_5.utils.SendSmsUtil;
 import com.west2_5.utils.SnowflakeUtil;
+import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.crypto.SecureRandomNumberGenerator;
 import org.apache.shiro.crypto.hash.SimpleHash;
 import org.slf4j.Logger;
@@ -22,6 +23,8 @@ import javax.annotation.Resource;
 import java.util.concurrent.TimeUnit;
 
 import static com.west2_5.common.ResponseCode.*;
+import static com.west2_5.constants.UserConstant.ADMIN_USER;
+import static com.west2_5.constants.UserConstant.NORMAL_USER;
 
 @Service("userService")
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
@@ -110,6 +113,22 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         LambdaQueryWrapper<User> lambdaQueryWrapper = new LambdaQueryWrapper<>();
         lambdaQueryWrapper.eq(User::getUserId, userId);
         return getOne(lambdaQueryWrapper);
+    }
+
+    /**
+     * 判断当前用户是否是管理员
+     * @author Lige
+     * @since 2023-06-02
+     */
+    @Override
+    public void checkAdmin() {
+        User user = (User) SecurityUtils.getSubject().getPrincipal();
+        if (user == null){
+            throw new BusinessException(NULL_ERROR);
+        }
+        if (user.getRole() == NORMAL_USER){
+            throw new BusinessException(ADMIN_ERROR);
+        }
     }
 
 }

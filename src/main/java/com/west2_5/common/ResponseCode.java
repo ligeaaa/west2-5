@@ -16,6 +16,7 @@ public enum ResponseCode {
     USER_UNKNOWN(40004,"用户不存在"),
     INCORRECT_PWD(40005,"密码错误"),
     USER_NOT_LOGIN(40006,"用户未登录"),
+    ADMIN_ERROR(40007,"当前用户不是管理员"),
 
     //系统异常
     SYSTEM_ERROR(50000, "系统内部异常");
