@@ -36,7 +36,7 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements TagSe
     @Override
     public ResponseResult stopTag(Long tagId) {
         Tag tag = getByTagId(tagId);
-        tag.setStatus(STOP_TAG);
+        tag.setState(STOP_TAG);
         updateById(tag);
         return ResponseResult.success();
     }
@@ -44,7 +44,7 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements TagSe
     @Override
     public ResponseResult startTag(Long tagId) {
         Tag tag = getByTagId(tagId);
-        tag.setStatus(START_TAG);
+        tag.setState(START_TAG);
         updateById(tag);
         return ResponseResult.success();
     }
@@ -52,7 +52,7 @@ public class TagServiceImpl extends ServiceImpl<TagMapper, Tag> implements TagSe
     @Override
     public ResponseResult<List<Tag>> getTags() {
         LambdaQueryWrapper<Tag> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(Tag::getStatus,START_TAG);
+        wrapper.eq(Tag::getState,START_TAG);
         return ResponseResult.success(list(wrapper));
     }
 

@@ -117,11 +117,11 @@ public class FavoritesServiceImpl extends ServiceImpl<FavoritesMapper, Favorites
             //商品基本信息的获取
             Merchandise merchandise = merchandiseService.getByMerchandiseId(favoritesDetails.getMerchandiseId());
             MerchandiseOverview merchandiseOverview = new MerchandiseOverview();
-            BeanUtils.copyProperties(merchandise, MerchandiseOverview.class);
+            BeanUtils.copyProperties(merchandise, merchandiseOverview);
 
             //用户基本信息的获取
             UserBasicInfo userBasicInfo = new UserBasicInfo();
-            BeanUtils.copyProperties(user, UserBasicInfo.class);
+            BeanUtils.copyProperties(user, userBasicInfo);
 
             //存入response中
             favoritesDetails.setMerchandiseOverview(merchandiseOverview);

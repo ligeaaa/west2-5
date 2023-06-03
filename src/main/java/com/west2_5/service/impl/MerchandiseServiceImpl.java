@@ -25,6 +25,8 @@ import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.west2_5.constants.MerchandiseConstant.TAKEN_OFF;
+
 @Slf4j
 @Service("merchandiseService")
 public class MerchandiseServiceImpl extends ServiceImpl<MerchandiseMapper, Merchandise> implements MerchandiseService {
@@ -212,7 +214,7 @@ public class MerchandiseServiceImpl extends ServiceImpl<MerchandiseMapper, Merch
         Merchandise merchandise = getByMerchandiseId(merchandiseId);
         LambdaUpdateWrapper<Merchandise> merchandiseWrapper = new LambdaUpdateWrapper();
         merchandiseWrapper.eq(Merchandise::getMerchandiseId, merchandiseId)
-                .set(Merchandise::getState, 2);
+                .set(Merchandise::getState, TAKEN_OFF);
         merchandiseMapper.update(merchandise,merchandiseWrapper);
     }
 
