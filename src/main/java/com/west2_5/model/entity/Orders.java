@@ -1,36 +1,43 @@
 package com.west2_5.model.entity;
 
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * @Date: 2023/5/31
- * @Author: RuiLin
- * @Description: 商品订单
- */
+import java.util.Date;
 
+/**
+ * 订单(Orders)表实体类
+ *
+ * @author makejava
+ * @since 2023-06-04 00:58:20
+ */
+@SuppressWarnings("serial")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-
+@TableName("orders")
 public class Orders {
-
+    //订单id
     @TableId
-    Long orderId;
+    private Long orderId;
 
-    Long merchandiseId;
-    Long sellerId;
-    Long buyerId;
-    double orderPrice;
+    private Long merchandiseId;
+    //售卖者id
+    private Long sellerId;
+    //购买者id
+    private Long buyerId;
+    //实际成交价格
+    private Double price;
+    //订单状态（0表示待确认，1表示发货，2表示收货）
+    private Integer state;
+    
+    private Date createTime;
+    
+    private Date updateTime;
 
-   /**
-    * 【简化一点流程】
-    *  0：买家已付款
-    *  1：卖家已发货
-    *  2：订单退款中
-    *  3：订单已完成
-    */
-    int state;
+
+
 }

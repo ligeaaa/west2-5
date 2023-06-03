@@ -16,7 +16,7 @@ import com.west2_5.model.request.merchandise.AddMerchandiseRequest;
 import com.west2_5.model.response.merchandise.MerchandiseDetails;
 import com.west2_5.model.response.merchandise.MerchandiseOverview;
 import com.west2_5.service.MerchandiseService;
-import com.west2_5.service.OrderService;
+import com.west2_5.service.OrdersService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -45,7 +45,7 @@ public class MerchandiseServiceImpl extends ServiceImpl<MerchandiseMapper, Merch
     private UserMapper userMapper;
 
     @Resource
-    private OrderService orderService;
+    private OrdersService ordersService;
 
     //根据商品Id获取商品
     @Override
