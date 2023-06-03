@@ -1,8 +1,6 @@
 package com.west2_5.controller;
 
-import com.west2_5.common.ResponseCode;
 import com.west2_5.common.ResponseResult;
-import com.west2_5.exception.BusinessException;
 import com.west2_5.model.entity.User;
 import com.west2_5.model.request.merchandise.AddMerchandiseRequest;
 import com.west2_5.model.response.merchandise.MerchandiseDetails;
@@ -23,35 +21,30 @@ public class MerchandiseController {
     private MerchandiseService merchandiseService;
 
 
-    @PostMapping("/add")
+    @PostMapping("/manage/add")
     public ResponseResult addMerchandise(@RequestBody AddMerchandiseRequest merchandise) {
-
-        Long userId = null;
-        try{
-            User user = (User) SecurityUtils.getSubject().getPrincipal();
-            userId = user.getUserId();
-        }catch (Exception e){
-            throw new BusinessException(ResponseCode.USER_NOT_LOGIN);
-        }
+        User user = (User) SecurityUtils.getSubject().getPrincipal();
+        Long userId = user.getUserId();
 
         merchandise.setSellerId(userId);
         merchandiseService.addMerchandise(merchandise);
         return ResponseResult.success();
     }
 
-    @GetMapping("/details")
-    public ResponseResult viewMerchandiseDetails(@RequestParam Long mid) {
-        MerchandiseDetails details = merchandiseService.getMerchandiseDetails(mid);
-        return ResponseResult.success(details);
+    @PostMapping("/manage/out")
+    public ResponseResult outMerchandise(@RequestParam Long mid) {
+        merchandiseService.outMerchandise(mid);
+        return ResponseResult.success();
     }
 
-    @GetMapping("/overview")
+
+    @GetMapping("/list/overview")
     public ResponseResult viewMerchandiseDetails(@RequestParam int page) {
         List<MerchandiseOverview> overviewList = merchandiseService.overviewMerchandise(page);
         return ResponseResult.success(overviewList);
     }
 
-    @GetMapping("/publish")
+    @GetMapping("/list/publish")
     public ResponseResult getMyPublishedMerchandise(@RequestParam int page) {
         User user = (User) SecurityUtils.getSubject().getPrincipal();
         Long userId = user.getUserId();
@@ -59,7 +52,7 @@ public class MerchandiseController {
         return ResponseResult.success(overviewList);
     }
 
-    @GetMapping("/out")
+    @GetMapping("/list/out")
     public ResponseResult getMyOutMerchandise(@RequestParam int page) {
         User user = (User) SecurityUtils.getSubject().getPrincipal();
         Long userId = user.getUserId();
@@ -67,13 +60,13 @@ public class MerchandiseController {
         return ResponseResult.success(overviewList);
     }
 
-    @PostMapping("/buy")
-    public ResponseResult Merchandise(@RequestParam Long mid) {
-        User user = (User) SecurityUtils.getSubject().getPrincipal();
-        Long userId = user.getUserId();
-        merchandiseService.buyMerchandise(userId,mid);
-        return ResponseResult.success();
+    @GetMapping("/list/details")
+    public ResponseResult viewMerchandiseDetails(@RequestParam Long mid) {
+        MerchandiseDetails details = merchandiseService.getMerchandiseDetails(mid);
+        return ResponseResult.success(details);
     }
+
+
 
 
 }

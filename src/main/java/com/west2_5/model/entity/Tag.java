@@ -17,6 +17,6 @@ public class Tag  {
 
     private String tagName;
 
-    private Integer status;
+    private Integer state;
 
 }

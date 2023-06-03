@@ -31,10 +31,11 @@ public class ShiroConfig {
         filterMap.put("/user/login", "anon");
         filterMap.put("/user/sms", "anon");
         filterMap.put("/user/signin", "anon");
-//        // 其余接口一律拦截
-//        filterMap.put("/**","authc");
-//        shiroBean.setFilterChainDefinitionMap(filterMap);
-//TODO 这里的拦截为了方便测试注释掉了哦
+
+        // 其余接口一律拦截
+        filterMap.put("/**","authc");
+        shiroBean.setFilterChainDefinitionMap(filterMap);
+
         Map<String, Filter> customizeMap = shiroBean.getFilters();
         customizeMap.put("authc", new ShiroCustomizeFilter());
         shiroBean.setFilters(customizeMap);

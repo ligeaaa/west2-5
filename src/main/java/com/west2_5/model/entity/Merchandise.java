@@ -26,9 +26,11 @@ public class Merchandise  {
     private String introduction;
 
     /**
-     *  0：上架状态【默认】
+     * 按理还要建一个merchandise_state表（state_id / state_name）
+     * 但摸鱼从简（手动返回文字，但数据库还是数字格式）
+     *  0：已上架
      *  1：已下架
      */
-    private Integer status;
+    private Integer state;
 
 }

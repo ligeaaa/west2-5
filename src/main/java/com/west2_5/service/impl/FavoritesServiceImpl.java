@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.west2_5.common.ResponseCode.NULL_ERROR;
+import static com.west2_5.common.ResponseCode.USER_NOT_LOGIN;
 
 /**
  * (Favorites)表服务实现类
@@ -99,9 +100,6 @@ public class FavoritesServiceImpl extends ServiceImpl<FavoritesMapper, Favorites
     public List<FavoritesDetails> getFavorites(PageRequest pageRequest) {
         //获取当前用户信息
         User user = (User) SecurityUtils.getSubject().getPrincipal();
-        if (user == null){
-            throw new BusinessException(NULL_ERROR);
-        }
         Long userId = user.getUserId();
 
         //只查询当前用户
@@ -167,9 +165,6 @@ public class FavoritesServiceImpl extends ServiceImpl<FavoritesMapper, Favorites
     public Boolean checkFavorites(Long merchandiseId) {
         //获取当前用户
         User user = (User) SecurityUtils.getSubject().getPrincipal();
-        if (user == null){
-            throw new BusinessException(NULL_ERROR);
-        }
         Long userId = user.getUserId();
 
         LambdaQueryWrapper<Favorites> lambdaQueryWrapper = new LambdaQueryWrapper<>();

@@ -10,9 +10,8 @@ import java.util.List;
 
 public interface MerchandiseService extends IService<Merchandise> {
 
+    //查
     Merchandise getByMerchandiseId(Long merchandiseId);
-
-    void addMerchandise(AddMerchandiseRequest merchandise);
 
     MerchandiseDetails getMerchandiseDetails(Long merchandiseId);
 
@@ -22,5 +21,10 @@ public interface MerchandiseService extends IService<Merchandise> {
 
     List<MerchandiseOverview> getMyOutMerchandise(Long userId, int currentPage);
 
-    void buyMerchandise(Long buyerId, Long merchandiseId);
+    //增删改
+    void addMerchandise(AddMerchandiseRequest merchandise);
+
+    void outMerchandise(Long merchandiseId);
+
+
 }

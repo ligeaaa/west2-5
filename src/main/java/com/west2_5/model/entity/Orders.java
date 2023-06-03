@@ -29,8 +29,8 @@ public class Orders {
     * 【简化一点流程】
     *  0：买家已付款
     *  1：卖家已发货
-    *  2. 订单退款中
+    *  2：订单退款中
     *  3：订单已完成
     */
-    int orderStatus;
+    int state;
 }

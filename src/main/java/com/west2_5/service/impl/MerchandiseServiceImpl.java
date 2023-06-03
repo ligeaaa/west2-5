@@ -25,15 +25,10 @@ import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @Date: 2023/5/31
- * @Author: RuiLin
- * @Description:
- */
-
 @Slf4j
 @Service("merchandiseService")
 public class MerchandiseServiceImpl extends ServiceImpl<MerchandiseMapper, Merchandise> implements MerchandiseService {
+
 
     @Resource
     private MerchandiseMapper merchandiseMapper;
@@ -50,52 +45,22 @@ public class MerchandiseServiceImpl extends ServiceImpl<MerchandiseMapper, Merch
     @Resource
     private OrderService orderService;
 
-    /**
-     * 根据商品Id获取商品
-     *
-     * @author Lige
-     * @since 2023-06-03
-     */
+    //根据商品Id获取商品
     @Override
     public Merchandise getByMerchandiseId(Long merchandiseId) {
         LambdaQueryWrapper<Merchandise> lambdaQueryWrapper = new LambdaQueryWrapper<>();
         lambdaQueryWrapper.eq(Merchandise::getMerchandiseId, merchandiseId);
-        return getOne(lambdaQueryWrapper);
+        Merchandise merchandise = getOne(lambdaQueryWrapper);
+        if(merchandise == null){
+            throw new BusinessException(ResponseCode.NULL_ERROR,"商品不存在");
+        }
+        return merchandise;
     }
 
-    @Override
-    public void addMerchandise(AddMerchandiseRequest merchandiseRequest) {
-
-        Merchandise merchandise = new Merchandise();
-        BeanUtils.copyProperties(merchandiseRequest, merchandise);
-
-        merchandiseMapper.insert(merchandise);
-        Long merchandiseId = merchandise.getMerchandiseId();
-
-        List<String> pictures = merchandiseRequest.getPictures();
-
-        int priority = 1;
-
-        if (pictures.size() == 0) {
-            throw new BusinessException(ResponseCode.NULL_ERROR, "至少要有一张图片");
-        }
-
-        for (String url : pictures) {
-            MerchandiseImg img = new MerchandiseImg();
-            img.setMerchandiseId(merchandiseId);
-            img.setImgUrl(url);
-            img.setImgPriority(priority);
-            merchandiseImgMapper.insert(img);
-            priority++;
-        }
-
-    }
-
+    //查看商品详情
     @Override
     public MerchandiseDetails getMerchandiseDetails(Long merchandiseId) {
 
-        LambdaQueryWrapper<Merchandise> merchandiseQuery = new LambdaQueryWrapper();
-        merchandiseQuery.eq(Merchandise::getMerchandiseId, merchandiseId);
         Merchandise merchandise = getByMerchandiseId(merchandiseId);
 
         Long tagId = merchandise.getTagId();
@@ -125,6 +90,7 @@ public class MerchandiseServiceImpl extends ServiceImpl<MerchandiseMapper, Merch
         return details;
     }
 
+    //首页商品概览列表
     @Override
     public List<MerchandiseOverview> overviewMerchandise(int currentPage) {
 
@@ -132,7 +98,7 @@ public class MerchandiseServiceImpl extends ServiceImpl<MerchandiseMapper, Merch
 
         Page<Merchandise> page = new Page<>(currentPage, 4);
         LambdaQueryWrapper<Merchandise> merchandiseQuery = new LambdaQueryWrapper();
-        merchandiseQuery.eq(Merchandise::getStatus, 1);
+        merchandiseQuery.eq(Merchandise::getState, 0); //获取已上架商品
         IPage<Merchandise> resultPage = merchandiseMapper.selectPage(page, merchandiseQuery);
         List<Merchandise> merchandises = resultPage.getRecords();
 
@@ -145,20 +111,21 @@ public class MerchandiseServiceImpl extends ServiceImpl<MerchandiseMapper, Merch
             LambdaQueryWrapper<MerchandiseImg> imgQuery = new LambdaQueryWrapper();
             imgQuery.eq(MerchandiseImg::getMerchandiseId, merchandiseId).eq(MerchandiseImg::getImgPriority, 1);
             MerchandiseImg image = merchandiseImgMapper.selectOne(imgQuery);
-            overview.setImgCover(image.getImgUrl());
+            overview.setPicture(image.getImgUrl());
             overviewList.add(overview);
         }
 
         return overviewList;
     }
 
+    //获取我发布的商品
     @Override
     public List<MerchandiseOverview> getMyPublishedMerchandise(Long userId, int currentPage) {
         List<MerchandiseOverview> overviewList = new ArrayList<>();
 
         Page<Merchandise> page = new Page<>(currentPage, 4);
         LambdaQueryWrapper<Merchandise> merchandiseQuery = new LambdaQueryWrapper();
-        merchandiseQuery.eq(Merchandise::getSellerId, userId).eq(Merchandise::getStatus, 0); //相当于比首页商品多了这行
+        merchandiseQuery.eq(Merchandise::getSellerId, userId).eq(Merchandise::getState, 0); //相当于比首页商品多了这行【只搜用户自己的商品列表】
 
         IPage<Merchandise> resultPage = merchandiseMapper.selectPage(page, merchandiseQuery);
         List<Merchandise> merchandises = resultPage.getRecords();
@@ -167,24 +134,27 @@ public class MerchandiseServiceImpl extends ServiceImpl<MerchandiseMapper, Merch
         for (Merchandise m : merchandises) {
             MerchandiseOverview overview = new MerchandiseOverview();
             BeanUtils.copyProperties(m, overview);
+            overview.setState("已发布"); //还有这行
+
             Long merchandiseId = m.getMerchandiseId();
             LambdaQueryWrapper<MerchandiseImg> imgQuery = new LambdaQueryWrapper();
             imgQuery.eq(MerchandiseImg::getMerchandiseId, merchandiseId).eq(MerchandiseImg::getImgPriority, 1);
             MerchandiseImg image = merchandiseImgMapper.selectOne(imgQuery);
-            overview.setImgCover(image.getImgUrl());
+            overview.setPicture(image.getImgUrl());
             overviewList.add(overview);
         }
 
         return overviewList;
     }
 
+    //获取我下架的商品
     @Override
     public List<MerchandiseOverview> getMyOutMerchandise(Long userId, int currentPage) {
         List<MerchandiseOverview> overviewList = new ArrayList<>();
 
         Page<Merchandise> page = new Page<>(currentPage, 4);
         LambdaQueryWrapper<Merchandise> merchandiseQuery = new LambdaQueryWrapper();
-        merchandiseQuery.eq(Merchandise::getSellerId, userId).eq(Merchandise::getStatus, 1); //
+        merchandiseQuery.eq(Merchandise::getSellerId, userId).eq(Merchandise::getState, 1); //
 
         IPage<Merchandise> resultPage = merchandiseMapper.selectPage(page, merchandiseQuery);
         List<Merchandise> merchandises = resultPage.getRecords();
@@ -193,32 +163,57 @@ public class MerchandiseServiceImpl extends ServiceImpl<MerchandiseMapper, Merch
         for (Merchandise m : merchandises) {
             MerchandiseOverview overview = new MerchandiseOverview();
             BeanUtils.copyProperties(m, overview);
+            overview.setState("已下架");
+
             Long merchandiseId = m.getMerchandiseId();
             LambdaQueryWrapper<MerchandiseImg> imgQuery = new LambdaQueryWrapper();
             imgQuery.eq(MerchandiseImg::getMerchandiseId, merchandiseId).eq(MerchandiseImg::getImgPriority, 1);
             MerchandiseImg image = merchandiseImgMapper.selectOne(imgQuery);
-            overview.setImgCover(image.getImgUrl());
+            overview.setPicture(image.getImgUrl());
             overviewList.add(overview);
         }
-
+        
         return overviewList;
     }
 
 
+    //发布商品
     @Override
-    public void buyMerchandise(Long buyerId, Long merchandiseId) {
-        Merchandise merchandise = getByMerchandiseId(merchandiseId);
+    public void addMerchandise(AddMerchandiseRequest merchandiseRequest) {
 
+        Merchandise merchandise = new Merchandise();
+        BeanUtils.copyProperties(merchandiseRequest, merchandise);
+
+        merchandiseMapper.insert(merchandise);
+        Long merchandiseId = merchandise.getMerchandiseId();
+
+        List<String> pictures = merchandiseRequest.getPictures();
+
+        int priority = 1;
+
+        if (pictures.size() == 0) {
+            throw new BusinessException(ResponseCode.NULL_ERROR, "至少要有一张图片");
+        }
+
+        for (String url : pictures) {
+            MerchandiseImg img = new MerchandiseImg();
+            img.setMerchandiseId(merchandiseId);
+            img.setImgUrl(url);
+            img.setImgPriority(priority);
+            merchandiseImgMapper.insert(img);
+            priority++;
+        }
+
+    }
+
+    //下架商品
+    @Override
+    public void outMerchandise(Long merchandiseId) {
+        Merchandise merchandise = getByMerchandiseId(merchandiseId);
         LambdaUpdateWrapper<Merchandise> merchandiseWrapper = new LambdaUpdateWrapper();
         merchandiseWrapper.eq(Merchandise::getMerchandiseId, merchandiseId)
-                .set(Merchandise::getStatus, 2);
+                .set(Merchandise::getState, 2);
         merchandiseMapper.update(merchandise,merchandiseWrapper);
-
-        Orders orders = new Orders();
-        BeanUtils.copyProperties(merchandise, orders);
-        orders.setOrderPrice(merchandise.getPrice());
-        orders.setBuyerId(buyerId);
-        orderService.generateOrder(orders);
     }
 
 }

@@ -18,6 +18,8 @@ import java.io.Serializable;
  *      后端再对这个 sessionId 解析，拿到正确的 session
  */
 
+// TODO: 是否可以持久化保存session到redis/mysql，避免后台重启用户需要重新登陆
+
 public class ShiroSession extends DefaultWebSessionManager {
 
     private static final String AUTH_TOKEN = "AuthToken";

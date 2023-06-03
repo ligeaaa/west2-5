@@ -5,5 +5,5 @@ import com.west2_5.model.entity.Orders;
 
 public interface OrderService extends IService<Orders> {
 
-    void generateOrder(Orders orders);
+    void createOrder(Long buyerId, Long merchandiseId);
 }

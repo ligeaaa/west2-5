@@ -7,11 +7,12 @@ import lombok.Data;
 
 @Data
 public class FavoritesDetails {
-    private Long favoriteId;
 
-    private Long userId;
+    private Long favoriteId; //
 
-    private Long merchandiseId;
+    private Long userId; //
+
+    private Long merchandiseId; //
 
     private MerchandiseOverview merchandiseOverview;
 

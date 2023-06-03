@@ -21,4 +21,5 @@ public interface FavoritesService extends IService<Favorites> {
     ResponseResult deleteFavorites(Long merchandiseId);
 
     Boolean checkFavorites(Long merchandiseId);
+
 }

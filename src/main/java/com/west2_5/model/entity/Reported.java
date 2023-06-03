@@ -16,17 +16,12 @@ import lombok.NoArgsConstructor;
 public class Reported {
 
     Long reportedId;
+
     Long reporterId; //举报者
+
     Long merchandiseId;
 
-    /**
-     *  1：虚假宣传
-     *  2：有害信息
-     *  3：其他
-     */
-    int reportedType;
+    String reportedReason;
 
-    String reportedComment;
-
-    boolean hasSettle;
+    int state;
 }

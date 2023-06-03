@@ -7,10 +7,12 @@ public class MerchandiseOverview {
 
     private Long merchandiseId;
 
+    private String state;
+
     private String title;
 
     private Double price;
 
-    private String imgCover; //第一张图片（封面）
+    private String picture; //第一张图片（封面）
 
 }
