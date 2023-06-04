@@ -3,7 +3,7 @@ package com.west2_5.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.west2_5.common.ResponseResult;
 import com.west2_5.model.entity.Orders;
-import com.west2_5.model.response.orders.OrdersOverview;
+import com.west2_5.model.response.orders.OrdersVO;
 
 import java.util.List;
 
@@ -22,7 +22,7 @@ public interface OrdersService extends IService<Orders> {
 
     ResponseResult takeDeliver(Long orderId);
 
-    ResponseResult<List<OrdersOverview>> buyerGetOrders(Integer status);
+    ResponseResult<List<OrdersVO>> buyerGetOrders(Integer status);
 
-    ResponseResult<List<OrdersOverview>> sellerGetOrders(Integer status);
+    ResponseResult<List<OrdersVO>> sellerGetOrders(Integer status);
 }

@@ -1,7 +1,7 @@
 package com.west2_5.controller;
 
 import com.west2_5.common.ResponseResult;
-import com.west2_5.model.response.orders.OrdersOverview;
+import com.west2_5.model.response.orders.OrdersVO;
 import com.west2_5.service.OrdersService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -36,8 +36,8 @@ public class OrdersController{
      * @author Lige
      * @since 2023-06-04
      */
-    @PostMapping("/user/deliver")
-    private ResponseResult deliver(@RequestBody Long orderId){
+    @PostMapping("/user/deliver/{oid}")
+    private ResponseResult deliver(@PathVariable("oid") Long orderId){
         return ordersService.deliver(orderId);
     }
 
@@ -46,8 +46,8 @@ public class OrdersController{
      * @author Lige
      * @since 2023-06-04
      */
-    @PostMapping("/user/takeDeliver")
-    private ResponseResult takeDeliver(@RequestBody Long orderId){
+    @PostMapping("/user/takeDeliver/{oid}")
+    private ResponseResult takeDeliver(@PathVariable("oid") Long orderId){
         return ordersService.takeDeliver(orderId);
     }
 
@@ -56,8 +56,8 @@ public class OrdersController{
      * @author Lige
      * @since 2023-06-04
      */
-    @PostMapping("/user/buyerGetOrders")
-    private ResponseResult<List<OrdersOverview>> buyerGetOrders(@RequestBody Integer status){
+    @PostMapping("/user/buyerGetOrders/")
+    private ResponseResult<List<OrdersVO>> buyerGetOrders(@RequestBody Integer status){
         return ordersService.buyerGetOrders(status);
     }
 
@@ -67,7 +67,7 @@ public class OrdersController{
      * @since 2023-06-04
      */
     @PostMapping("/user/sellerGetOrders")
-    private ResponseResult<List<OrdersOverview>> sellerGetOrders(@RequestBody Integer status){
+    private ResponseResult<List<OrdersVO>> sellerGetOrders(@RequestBody Integer status){
         return ordersService.sellerGetOrders(status);
     }
 

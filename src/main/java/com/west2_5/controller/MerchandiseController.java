@@ -31,8 +31,8 @@ public class MerchandiseController {
         return ResponseResult.success();
     }
 
-    @PostMapping("/manage/out")
-    public ResponseResult outMerchandise(@RequestParam Long mid) {
+    @PostMapping("/manage/out/{mid}")
+    public ResponseResult outMerchandise(@PathVariable("mid") Long mid) {
         merchandiseService.outMerchandise(mid);
         return ResponseResult.success();
     }

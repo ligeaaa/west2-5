@@ -53,7 +53,9 @@ public class ReportedController {
      * @since 2023-06-03
      */
     @GetMapping("/admin/getReport")
-    private ResponseResult<List<ReportedVO>> getReport(@RequestBody PageRequest pageRequest){
+    private ResponseResult<List<ReportedVO>> getReport(@RequestParam("cp") int currentPage){
+        PageRequest pageRequest =  new PageRequest(); //默认每页返回条数由后端决定
+        pageRequest.setCurrent(currentPage);
         return reportedService.getReport(pageRequest);
     }
 

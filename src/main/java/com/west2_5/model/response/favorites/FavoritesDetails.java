@@ -14,7 +14,7 @@ public class FavoritesDetails {
 
     private Long merchandiseId; //
 
-    private MerchandiseOverview merchandiseOverview;
+    private MerchandiseDetails merchandiseDetails;
 
     private UserBasicInfo userBasicInfo;
 }

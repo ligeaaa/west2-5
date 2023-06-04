@@ -57,7 +57,8 @@ public class FavoritesController{
      * @since 2023-06-01
      */
     @GetMapping("/user/getFavorites")
-    private ResponseResult<List<FavoritesDetails>> getFavorites(@RequestBody PageRequest pageRequest){
+    private ResponseResult<List<FavoritesDetails>> getFavorites(){
+        PageRequest pageRequest = new PageRequest();
         return ResponseResult.success(favoritesService.getFavorites(pageRequest));
     }
 

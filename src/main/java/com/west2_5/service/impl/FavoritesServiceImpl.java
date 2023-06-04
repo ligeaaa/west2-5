@@ -11,6 +11,7 @@ import com.west2_5.model.entity.Favorites;
 import com.west2_5.model.entity.Merchandise;
 import com.west2_5.model.entity.User;
 import com.west2_5.model.response.favorites.FavoritesDetails;
+import com.west2_5.model.response.merchandise.MerchandiseDetails;
 import com.west2_5.model.response.merchandise.MerchandiseOverview;
 import com.west2_5.model.response.user.UserBasicInfo;
 import com.west2_5.service.FavoritesService;
@@ -111,16 +112,14 @@ public class FavoritesServiceImpl extends ServiceImpl<FavoritesMapper, Favorites
             BeanUtils.copyProperties(favorites1, favoritesDetails);
 
             //商品基本信息的获取
-            Merchandise merchandise = merchandiseService.getByMerchandiseId(favoritesDetails.getMerchandiseId());
-            MerchandiseOverview merchandiseOverview = new MerchandiseOverview();
-            BeanUtils.copyProperties(merchandise, merchandiseOverview);
+            MerchandiseDetails merchandiseDetails = merchandiseService.getMerchandiseDetails(favoritesDetails.getMerchandiseId());
 
             //用户基本信息的获取
             UserBasicInfo userBasicInfo = new UserBasicInfo();
             BeanUtils.copyProperties(user, userBasicInfo);
 
             //存入response中
-            favoritesDetails.setMerchandiseOverview(merchandiseOverview);
+            favoritesDetails.setMerchandiseDetails(merchandiseDetails);
             favoritesDetails.setUserBasicInfo(userBasicInfo);
 
             //加入列表
