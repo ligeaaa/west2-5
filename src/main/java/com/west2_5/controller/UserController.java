@@ -97,7 +97,7 @@ public class UserController {
         String avatar = user.getAvatar();
 
         UserBasicInfo basicInfo = new UserBasicInfo();
-        basicInfo.setName(name);
+        basicInfo.setUserName(name);
         basicInfo.setAvatar(avatar);
 
         JSONObject info=(JSONObject)JSON.toJSON(basicInfo);

@@ -37,10 +37,9 @@ public class MerchandiseController {
         return ResponseResult.success();
     }
 
-
     @GetMapping("/list/overview")
-    public ResponseResult viewMerchandiseDetails(@RequestParam int page) {
-        List<MerchandiseOverview> overviewList = merchandiseService.overviewMerchandise(page);
+    public ResponseResult getOverviewLists(@RequestParam int page) {
+        List<MerchandiseOverview> overviewList = merchandiseService.getOverviewMerchandiseList(page);
         return ResponseResult.success(overviewList);
     }
 

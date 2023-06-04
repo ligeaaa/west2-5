@@ -45,7 +45,7 @@ public class MerchandiseServiceImpl extends ServiceImpl<MerchandiseMapper, Merch
     private UserMapper userMapper;
 
     @Resource
-    private OrdersService ordersService;
+    private OrdersService orderService;
 
     //根据商品Id获取商品
     @Override
@@ -64,7 +64,6 @@ public class MerchandiseServiceImpl extends ServiceImpl<MerchandiseMapper, Merch
     public MerchandiseDetails getMerchandiseDetails(Long merchandiseId) {
 
         Merchandise merchandise = getByMerchandiseId(merchandiseId);
-
         Long tagId = merchandise.getTagId();
         LambdaQueryWrapper<Tag> tagQuery = new LambdaQueryWrapper();
         tagQuery.eq(Tag::getTagId, tagId);
@@ -84,17 +83,27 @@ public class MerchandiseServiceImpl extends ServiceImpl<MerchandiseMapper, Merch
         User seller = userMapper.selectOne(userQuery);
 
         MerchandiseDetails details = new MerchandiseDetails();
-        BeanUtils.copyProperties(merchandise, details);
+
+        //FIXME: tag和merchandise的实体类都有state，复制时会被覆盖，暂时先调整顺序，先复制tag再复制商品放最后（优化回头看看
         BeanUtils.copyProperties(tag, details);
         BeanUtils.copyProperties(seller, details);
+        BeanUtils.copyProperties(merchandise, details);
         details.setPictures(imgUrls);
 
         return details;
     }
 
+    //TODO
+    //查看商品概览
+    @Override
+    public MerchandiseOverview getOverviewMerchandise(Long merchandiseId) {
+        MerchandiseOverview overview = new MerchandiseOverview();
+        return overview;
+    }
+
     //首页商品概览列表
     @Override
-    public List<MerchandiseOverview> overviewMerchandise(int currentPage) {
+    public List<MerchandiseOverview> getOverviewMerchandiseList(int currentPage) {
 
         List<MerchandiseOverview> overviewList = new ArrayList<>();
 
@@ -210,12 +219,11 @@ public class MerchandiseServiceImpl extends ServiceImpl<MerchandiseMapper, Merch
 
     //下架商品
     @Override
-    public void outMerchandise(Long merchandiseId) {
+    public Merchandise outMerchandise(Long merchandiseId) {
         Merchandise merchandise = getByMerchandiseId(merchandiseId);
-        LambdaUpdateWrapper<Merchandise> merchandiseWrapper = new LambdaUpdateWrapper();
-        merchandiseWrapper.eq(Merchandise::getMerchandiseId, merchandiseId)
-                .set(Merchandise::getState, TAKEN_OFF);
-        merchandiseMapper.update(merchandise,merchandiseWrapper);
+        merchandise.setState(TAKEN_OFF);
+        updateById(merchandise);
+        return merchandise;
     }
 
 }

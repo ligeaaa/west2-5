@@ -10,7 +10,6 @@ import com.west2_5.mapper.FavoritesMapper;
 import com.west2_5.model.entity.Favorites;
 import com.west2_5.model.entity.Merchandise;
 import com.west2_5.model.entity.User;
-import com.west2_5.model.request.favorites.AddFavoritesRequest;
 import com.west2_5.model.response.favorites.FavoritesDetails;
 import com.west2_5.model.response.merchandise.MerchandiseOverview;
 import com.west2_5.model.response.user.UserBasicInfo;
@@ -18,6 +17,7 @@ import com.west2_5.service.FavoritesService;
 import com.west2_5.service.MerchandiseService;
 import com.west2_5.service.UserService;
 import com.west2_5.utils.SnowflakeUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.SecurityUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
@@ -36,6 +36,7 @@ import static com.west2_5.common.ResponseCode.USER_NOT_LOGIN;
  * @author makejava
  * @since 2023-05-07 14:23:49
  */
+@Slf4j
 @Service("favoritesService")
 public class FavoritesServiceImpl extends ServiceImpl<FavoritesMapper, Favorites> implements FavoritesService {
 
@@ -54,27 +55,22 @@ public class FavoritesServiceImpl extends ServiceImpl<FavoritesMapper, Favorites
      * @since 2023-06-01
      */
     @Override
-    public ResponseResult addFavorite(AddFavoritesRequest addFavoritesRequest) {
+    public ResponseResult addFavorite(Long merchandiseId) {
+
+        //TODO: 判断是否已收藏，防止由于网络延迟，用户多次触发收藏
 
         //新建实体，用来新增记录
         Favorites favorites = new Favorites();
 
         //参数异常判断
-        if (addFavoritesRequest == null){
-            throw new BusinessException(NULL_ERROR);
+        if (merchandiseId == null){
+            throw new BusinessException(NULL_ERROR,"缺少商品Id");
         }else{
-            BeanUtils.copyProperties(addFavoritesRequest, favorites);
-
-            //获取当前用户
+            favorites.setMerchandiseId(merchandiseId);
             User user = (User) SecurityUtils.getSubject().getPrincipal();
-            if (user == null){
-                throw new BusinessException(NULL_ERROR);
-            }
             Long userId = user.getUserId();
             favorites.setUserId(userId);
-            if (favorites.getUserId() == null || favorites.getMerchandiseId() == null){
-                throw new BusinessException(NULL_ERROR);
-            }
+
             //TODO 判断商品id是否存在
         }
 
@@ -141,6 +137,7 @@ public class FavoritesServiceImpl extends ServiceImpl<FavoritesMapper, Favorites
      */
     @Override
     public ResponseResult deleteFavorites(Long merchandiseId) {
+
         //获取当前用户信息
         User user = (User) SecurityUtils.getSubject().getPrincipal();
         Long userId = user.getUserId();
@@ -171,7 +168,6 @@ public class FavoritesServiceImpl extends ServiceImpl<FavoritesMapper, Favorites
         lambdaQueryWrapper.eq(Favorites::getUserId, userId);
         lambdaQueryWrapper.eq(Favorites::getMerchandiseId, merchandiseId);
         Favorites favorites = getOne(lambdaQueryWrapper);
-
         if (favorites == null){
             return false;
         } else{

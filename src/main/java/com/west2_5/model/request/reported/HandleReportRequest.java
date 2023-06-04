@@ -4,6 +4,7 @@ import lombok.Data;
 
 @Data
 public class HandleReportRequest {
+
     //举报Id
     private Long reportedId;
 

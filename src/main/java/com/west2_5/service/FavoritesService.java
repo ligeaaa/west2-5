@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.west2_5.common.PageRequest;
 import com.west2_5.common.ResponseResult;
 import com.west2_5.model.entity.Favorites;
-import com.west2_5.model.request.favorites.AddFavoritesRequest;
 import com.west2_5.model.response.favorites.FavoritesDetails;
 
 import java.util.List;
@@ -14,7 +13,7 @@ import java.util.List;
 public interface FavoritesService extends IService<Favorites> {
 
 
-    ResponseResult addFavorite(AddFavoritesRequest addFavoritesRequest);
+    ResponseResult addFavorite(Long merchandiseId);
 
     List<FavoritesDetails> getFavorites(PageRequest pageRequest);
 

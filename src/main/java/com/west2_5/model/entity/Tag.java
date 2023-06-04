@@ -17,6 +17,8 @@ public class Tag  {
 
     private String tagName;
 
+    //FIXME: BeanCopy时跟商品state冲突了
     private Integer state;
+
 
 }

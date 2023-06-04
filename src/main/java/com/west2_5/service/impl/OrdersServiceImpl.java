@@ -3,13 +3,11 @@ package com.west2_5.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.west2_5.common.ResponseResult;
-import com.west2_5.controller.UserController;
-import com.west2_5.exception.BusinessException;
 import com.west2_5.mapper.OrdersMapper;
 import com.west2_5.model.entity.Merchandise;
 import com.west2_5.model.entity.Orders;
 import com.west2_5.model.entity.User;
-import com.west2_5.model.response.orders.OrdersVO;
+import com.west2_5.model.response.orders.OrdersOverview;
 import com.west2_5.model.response.user.UserBasicInfo;
 import com.west2_5.service.MerchandiseService;
 import com.west2_5.service.OrdersService;
@@ -22,7 +20,6 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.west2_5.common.ResponseCode.NULL_ERROR;
 import static com.west2_5.constants.OrdersConstant.*;
 
 /**
@@ -48,12 +45,11 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
     @Override
     public ResponseResult addOrder(Long merchandiseId) {
 
-        //获取当前用户
         User user = (User) SecurityUtils.getSubject().getPrincipal();
         Long userId = user.getUserId();
 
-        //获取商品信息
-        Merchandise merchandise = merchandiseService.getByMerchandiseId(merchandiseId);
+        // 下架商品
+        Merchandise merchandise = merchandiseService.outMerchandise(merchandiseId);
 
         Orders orders = new Orders();
         orders.setMerchandiseId(merchandiseId);
@@ -99,7 +95,7 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
      * @since 2023-06-04
      */
     @Override
-    public ResponseResult<List<OrdersVO>> buyerGetOrders(Integer status) {
+    public ResponseResult<List<OrdersOverview>> buyerGetOrders(Integer status) {
 
         //获取当前用户
         User user = (User) SecurityUtils.getSubject().getPrincipal();
@@ -113,27 +109,26 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
         }
         List<Orders> ordersList = list(lambdaQueryWrapper);
 
-        List<OrdersVO> ordersVOList = new ArrayList<>();
+        List<OrdersOverview> ordersOverviewList = new ArrayList<>();
 
         for (Orders order: ordersList){
-            OrdersVO ordervo = new OrdersVO();
+            OrdersOverview ordervo = new OrdersOverview();
             //添加订单信息
             BeanUtils.copyProperties(order,ordervo);
-            ordervo.setState(getBuyerState(order.getState()));
-            //添加商品信息
-            ordervo.setMerchandiseDetails(merchandiseService.getMerchandiseDetails(order.getMerchandiseId()));
+
+            ordervo.setMerchandiseDetails(merchandiseService.getMerchandiseOverview(order.getMerchandiseId()));
             //添加卖方信息
             UserBasicInfo userBasicInfo = new UserBasicInfo();
             User seller = userService.getByUserId(order.getSellerId());
             userBasicInfo.setAvatar(seller.getAvatar());
-            userBasicInfo.setName(seller.getUserName());
-            userBasicInfo.setId(seller.getUserId());
+            userBasicInfo.setUserName(seller.getUserName());
+            userBasicInfo.setUserId(seller.getUserId());
             ordervo.setUserBasicInfo(userBasicInfo);
 
-            ordersVOList.add(ordervo);
+            ordersOverviewList.add(ordervo);
         }
 
-        return ResponseResult.success(ordersVOList);
+        return ResponseResult.success(ordersOverviewList);
     }
 
     /**
@@ -142,7 +137,7 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
      * @since 2023-06-04
      */
     @Override
-    public ResponseResult<List<OrdersVO>> sellerGetOrders(Integer status) {
+    public ResponseResult<List<OrdersOverview>> sellerGetOrders(Integer status) {
 
         //获取当前用户
         User user = (User) SecurityUtils.getSubject().getPrincipal();
@@ -156,10 +151,10 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
         }
         List<Orders> ordersList = list(lambdaQueryWrapper);
 
-        List<OrdersVO> ordersVOList = new ArrayList<>();
+        List<OrdersOverview> ordersOverviewList = new ArrayList<>();
 
         for (Orders order: ordersList){
-            OrdersVO ordervo = new OrdersVO();
+            OrdersOverview ordervo = new OrdersOverview();
             //添加订单信息
             BeanUtils.copyProperties(order,ordervo);
             ordervo.setState(getSellerState(order.getState()));
@@ -169,14 +164,14 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
             UserBasicInfo userBasicInfo = new UserBasicInfo();
             User seller = userService.getByUserId(order.getBuyerId());
             userBasicInfo.setAvatar(seller.getAvatar());
-            userBasicInfo.setName(seller.getUserName());
-            userBasicInfo.setId(seller.getUserId());
+            userBasicInfo.setUserName(seller.getUserName());
+            userBasicInfo.setUserId(seller.getUserId());
             ordervo.setUserBasicInfo(userBasicInfo);
 
-            ordersVOList.add(ordervo);
+            ordersOverviewList.add(ordervo);
         }
 
-        return ResponseResult.success(ordersVOList);
+        return ResponseResult.success(ordersOverviewList);
     }
 
     /**

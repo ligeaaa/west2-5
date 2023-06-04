@@ -1,8 +1,7 @@
 package com.west2_5.controller;
 
 import com.west2_5.common.ResponseResult;
-import com.west2_5.model.entity.Orders;
-import com.west2_5.model.response.orders.OrdersVO;
+import com.west2_5.model.response.orders.OrdersOverview;
 import com.west2_5.service.OrdersService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -28,7 +27,7 @@ public class OrdersController{
      * @since 2023-06-04
      */
     @PostMapping("/user/addOrder")
-    private ResponseResult addOrder(Long merchandiseId){
+    private ResponseResult addOrder(@RequestBody Long merchandiseId){
         return ordersService.addOrder(merchandiseId);
     }
 
@@ -38,7 +37,7 @@ public class OrdersController{
      * @since 2023-06-04
      */
     @PostMapping("/user/deliver")
-    private ResponseResult deliver(Long orderId){
+    private ResponseResult deliver(@RequestBody Long orderId){
         return ordersService.deliver(orderId);
     }
 
@@ -48,7 +47,7 @@ public class OrdersController{
      * @since 2023-06-04
      */
     @PostMapping("/user/takeDeliver")
-    private ResponseResult takeDeliver(Long orderId){
+    private ResponseResult takeDeliver(@RequestBody Long orderId){
         return ordersService.takeDeliver(orderId);
     }
 
@@ -58,7 +57,7 @@ public class OrdersController{
      * @since 2023-06-04
      */
     @PostMapping("/user/buyerGetOrders")
-    private ResponseResult<List<OrdersVO>> buyerGetOrders(Integer status){
+    private ResponseResult<List<OrdersOverview>> buyerGetOrders(@RequestBody Integer status){
         return ordersService.buyerGetOrders(status);
     }
 
@@ -68,7 +67,7 @@ public class OrdersController{
      * @since 2023-06-04
      */
     @PostMapping("/user/sellerGetOrders")
-    private ResponseResult<List<OrdersVO>> sellerGetOrders(Integer status){
+    private ResponseResult<List<OrdersOverview>> sellerGetOrders(@RequestBody Integer status){
         return ordersService.sellerGetOrders(status);
     }
 

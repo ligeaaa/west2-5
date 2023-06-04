@@ -2,6 +2,7 @@ package com.west2_5.model.response.merchandise;
 
 import com.sun.org.apache.xpath.internal.objects.XString;
 import com.west2_5.common.PageRequest;
+import com.west2_5.model.response.user.UserBasicInfo;
 import lombok.Data;
 
 import java.util.List;
@@ -11,7 +12,7 @@ public class MerchandiseDetails{
 
     private Long merchandiseId;
 
-    private String state; // 返回前端的是字符stateName(不是数字状态Id)
+    private Integer state;
 
     private String title;
 
@@ -29,4 +30,5 @@ public class MerchandiseDetails{
     private String userName;
 
     private String avatar;
+
 }
