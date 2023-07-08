@@ -27,8 +27,8 @@ public class MerchandiseController {
         Long userId = user.getUserId();
 
         merchandise.setSellerId(userId);
-        merchandiseService.addMerchandise(merchandise);
-        return ResponseResult.success();
+        Long mid = merchandiseService.addMerchandise(merchandise);
+        return ResponseResult.success(mid);
     }
 
     @PostMapping("/manage/out/{mid}")

@@ -31,14 +31,15 @@ public class ImageServiceImpl implements ImageService {
         String agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.99 Safari/537.36";
 
         String fileName = multipartFile.getOriginalFilename();
-        String suffix=".";
+        String suffix = ".";
         File tempFile = null;
         try {
             //获取图片后缀（png,jpg等）
             int dotIndex = fileName.lastIndexOf(".");
             if (dotIndex > 0 && dotIndex < fileName.length() - 1) {
-                 suffix = fileName.substring(dotIndex + 1);
+                suffix = fileName.substring(dotIndex + 1);
             }
+            suffix = "." + suffix;
             //临时文件名生成规则：prefix(必须不少于三个字符) + 随机字符串 + suffix
             tempFile = File.createTempFile("pixel_", suffix);
             multipartFile.transferTo(tempFile);
@@ -51,18 +52,18 @@ public class ImageServiceImpl implements ImageService {
 
         JSONObject body = JSONObject.parseObject(
                 HttpRequest.post(api)
-                .header("Authorization", auth)
-                .header("User-Agent", agent)
-                .form(paramMap)
-                .timeout(20000)
-                .execute().body());
+                        .header("Authorization", auth)
+                        .header("User-Agent", agent)
+                        .form(paramMap)
+                        .timeout(20000)
+                        .execute().body());
 
         String url = "";
-        try{
+        try {
             JSONObject data = body.getJSONObject("data");
             url = data.getString("url");
-        }catch (Exception e){
-            throw new BusinessException(ResponseCode.IMAGE_ERROR,"上传了重复图片");
+        } catch (Exception e) {
+            throw new BusinessException(ResponseCode.IMAGE_ERROR, "上传了重复图片");
         }
 
         return url;

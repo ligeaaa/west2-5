@@ -24,7 +24,7 @@ public interface MerchandiseService extends IService<Merchandise> {
     List<MerchandiseOverview> getMyOutMerchandise(Long userId, int currentPage);
 
     //增删改
-    void addMerchandise(AddMerchandiseRequest merchandise);
+    Long addMerchandise(AddMerchandiseRequest merchandise);
 
     Merchandise outMerchandise(Long merchandiseId);
 

@@ -190,7 +190,7 @@ public class MerchandiseServiceImpl extends ServiceImpl<MerchandiseMapper, Merch
 
     //发布商品
     @Override
-    public void addMerchandise(AddMerchandiseRequest merchandiseRequest) {
+    public Long addMerchandise(AddMerchandiseRequest merchandiseRequest) {
 
         Merchandise merchandise = new Merchandise();
         BeanUtils.copyProperties(merchandiseRequest, merchandise);
@@ -214,7 +214,7 @@ public class MerchandiseServiceImpl extends ServiceImpl<MerchandiseMapper, Merch
             merchandiseImgMapper.insert(img);
             priority++;
         }
-
+        return merchandiseId;
     }
 
     //下架商品

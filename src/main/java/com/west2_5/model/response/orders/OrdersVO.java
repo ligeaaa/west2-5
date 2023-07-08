@@ -16,9 +16,6 @@ public class OrdersVO {
     //商品id
     private Long merchandiseId;
 
-    //实际成交价格
-    private Double price;
-
     private MerchandiseDetails merchandiseDetails;
 
     //售卖者id

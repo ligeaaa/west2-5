@@ -119,6 +119,7 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
             //添加订单信息
             ordervo.setOrderId(order.getOrderId());
 
+            ordervo.setState(getBuyerState(order.getState()));
             //添加商品信息
             ordervo.setMerchandiseDetails(merchandiseService.getMerchandiseDetails(order.getMerchandiseId()));
             //添加卖方信息
@@ -131,6 +132,7 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
 
             ordersVOList.add(ordervo);
         }
+
 
         return ResponseResult.success(ordersVOList);
     }
@@ -167,10 +169,10 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
             ordervo.setMerchandiseDetails(merchandiseService.getMerchandiseDetails(order.getMerchandiseId()));
             //添加买方信息
             UserBasicInfo userBasicInfo = new UserBasicInfo();
-            User seller = userService.getByUserId(order.getBuyerId());
-            userBasicInfo.setAvatar(seller.getAvatar());
-            userBasicInfo.setUserName(seller.getUserName());
-            userBasicInfo.setUserId(seller.getUserId());
+            User buyer = userService.getByUserId(order.getBuyerId());
+            userBasicInfo.setAvatar(buyer.getAvatar());
+            userBasicInfo.setUserName(buyer.getUserName());
+            userBasicInfo.setUserId(buyer.getUserId());
             ordervo.setUserBasicInfo(userBasicInfo);
 
             ordersVOList.add(ordervo);

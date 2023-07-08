@@ -56,8 +56,8 @@ public class OrdersController{
      * @author Lige
      * @since 2023-06-04
      */
-    @PostMapping("/user/buyerGetOrders/")
-    private ResponseResult<List<OrdersVO>> buyerGetOrders(@RequestBody Integer status){
+    @GetMapping("/user/buyerGetOrders/{status}")
+    private ResponseResult<List<OrdersVO>> buyerGetOrders(@PathVariable("status") Integer status){
         return ordersService.buyerGetOrders(status);
     }
 
@@ -66,8 +66,8 @@ public class OrdersController{
      * @author Lige
      * @since 2023-06-04
      */
-    @PostMapping("/user/sellerGetOrders")
-    private ResponseResult<List<OrdersVO>> sellerGetOrders(@RequestBody Integer status){
+    @GetMapping("/user/sellerGetOrders/{status}")
+    private ResponseResult<List<OrdersVO>> sellerGetOrders(@PathVariable("status") Integer status){
         return ordersService.sellerGetOrders(status);
     }
 
